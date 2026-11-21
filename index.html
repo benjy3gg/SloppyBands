@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Patch Band v1.6.3</title>
+<title>Patch Band 3D v1.8.2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Yellowtail&display=swap" rel="stylesheet">
 <style>
@@ -51,10 +51,10 @@ select{font:700 10.5px var(--mono); color:var(--cream); background:var(--bake2);
 /* the living room: opens the app; the TV shows the stage */
 #couch{position:fixed; inset:0; z-index:60; background:#000; overflow:hidden; transition:opacity .4s .6s}
 #couch.fade{opacity:0; pointer-events:none} #couch.gone{display:none}
-#zoom{position:absolute; left:0; top:0; will-change:transform}
+#zoom{position:absolute; inset:0}
 #scene{position:absolute; inset:0}
 #room{position:absolute; inset:0; width:100%; height:100%; display:block; image-rendering:pixelated; background:#1a120c}
-#tv{position:absolute; left:42.88%; top:29.5%; width:15%; height:19.1%; border-radius:9% / 11%; overflow:hidden; background:#000; container-type:size; font-family:var(--mono); color:#fff}
+#tv{position:absolute; left:0; top:0; width:260px; height:210px; transform-origin:0 0; border-radius:9% / 11%; overflow:hidden; background:#000; container-type:size; font-family:var(--mono); color:#fff}
 #tvPic{position:absolute; inset:0} #tvPic canvas{display:block; width:100%; height:100%; image-rendering:pixelated}
 #tvNoise{position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated} #tvNoise[hidden]{display:none}
 #tvBug{position:absolute; right:5cqw; top:5cqh; font-size:7cqw; font-weight:700; letter-spacing:.06em; padding:.2em .5em; border-radius:.3em; background:rgba(255,200,40,.92); color:#1d1b17; transform:rotate(-4deg)}
@@ -65,12 +65,10 @@ select{font:700 10.5px var(--mono); color:var(--cream); background:var(--bake2);
 #tvThird b{font-size:1.25em; white-space:nowrap} #tvThird i{font-style:normal; color:#ffe08a; white-space:nowrap} #tvThird span{font-size:.8em; letter-spacing:.14em; text-transform:uppercase; color:#ffc828}
 #tvGlass{position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(rgba(0,0,0,.2) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 28% 18%, rgba(255,255,255,.14), transparent 55%); box-shadow:inset 0 0 9cqw rgba(0,0,0,.7)}
 #tvBtn, #remoteBtn, #vcrBtn, .shade{position:absolute; border:0; padding:0; background:none; cursor:pointer; border-radius:8px}
-.shade{top:13.7%; height:26.7%}
-#tvBtn{left:38.04%; top:25%; width:23.47%; height:28%} #remoteBtn{left:39.47%; top:58.5%; width:8.89%; height:21%}
-#vcrBtn{left:46.9%; top:54.2%; width:9.8%; height:7%}
 /* the tape rack (to the right of the TV; swipe left to see it) and the tape you have pulled out */
-.tape{position:absolute; width:4.2%; height:8.6%; border:0; padding:0; background:none; cursor:pointer; border-radius:4px} .tape[hidden]{display:none}
-#tapeCard{position:absolute; left:77.3%; top:31%; width:20.4%; display:flex; flex-direction:column; align-items:center; gap:6px; font-family:var(--mono)}
+#rack, #guide{position:absolute; left:0; top:0; transform-origin:0 0} #rack{width:380px; height:380px}
+.tape{position:absolute; width:13%; height:19%; border:0; padding:0; background:none; cursor:pointer; border-radius:4px} .tape[hidden]{display:none}
+#tapeCard{position:fixed; left:50%; top:45%; transform:translate(-50%,-50%); width:min(68vw,250px); display:flex; flex-direction:column; align-items:center; gap:6px; font-family:var(--mono)}
 #tapeCard[hidden]{display:none}
 #tapePlay{width:100%; aspect-ratio:187/103; padding:5% 6% 0; border:0; border-radius:6px; cursor:pointer; background:linear-gradient(#2b2b31,#17171b); box-shadow:0 0 0 2px #050506, 0 10px 24px rgba(0,0,0,.6); display:flex; flex-direction:column; gap:6%; color:#1d1b17; text-align:left}
 #tapePlay .tc-label{flex:none; height:52%; padding:4% 5%; border-radius:3px; background:#f3ead2; border-top:.5em solid var(--tc,#ffc828); display:flex; flex-direction:column; justify-content:center; overflow:hidden; font-family:var(--mono)}
@@ -79,7 +77,14 @@ select{font:700 10.5px var(--mono); color:var(--cream); background:var(--bake2);
 #tapeCard p{margin:0; padding:4px 8px; border-radius:7px; background:rgba(20,16,12,.82); color:var(--cream); font-size:10px; line-height:1.35; text-align:center}
 #tapeErase{border:1px solid rgba(255,255,255,.25); border-radius:7px; padding:4px 10px; background:rgba(20,16,12,.82); color:var(--cream); font:700 10px var(--mono); cursor:pointer}
 .couch-nav{position:absolute; top:50%; transform:translateY(-50%); padding:10px 10px; border:1px solid rgba(255,255,255,.2); border-radius:9px; background:rgba(20,16,12,.72); color:var(--cream); font:700 11px var(--mono); cursor:pointer}
-#toRack{right:8px} #toTv{left:8px} .couch-nav[hidden]{display:none}
+#toRack{right:8px} #toTv, #toGuide{left:8px} #toTv.right{left:auto; right:8px} .couch-nav[hidden]{display:none}
+/* the channel guide: laid onto the board on the left wall */
+#guide{width:300px; height:360px; box-sizing:border-box; padding:16px 18px; display:flex; flex-direction:column; gap:4px; font-family:var(--mono)}
+#guide h3{margin:0 0 6px; font-size:15px; letter-spacing:.14em; color:#ffc828; text-align:center}
+#guide button{flex:1 1 0; min-height:0; display:flex; align-items:center; gap:12px; padding:0 10px; border:0; border-radius:4px; background:rgba(255,255,255,.06); color:#f3ead2; font:700 17px var(--mono); letter-spacing:.06em; text-transform:uppercase; cursor:pointer; text-align:left}
+#guide button i{font-style:normal; color:#5aff7a; font-size:13px}
+#guide button[aria-current="true"]{background:#ffc828; color:#1d1b17} #guide button[aria-current="true"] i{color:#1d1b17}
+#guide button:focus-visible{outline:2px solid #fff; outline-offset:1px}
 #couchSay{position:absolute; left:12px; right:12px; top:calc(34px + env(safe-area-inset-top,0px)); margin:0 auto; max-width:420px; padding:8px 12px; border-radius:9px; text-align:center; font-size:11px; line-height:1.45; background:rgba(20,16,12,.86); color:var(--cream); opacity:0; transition:opacity .3s; pointer-events:none}
 #couchSay.on{opacity:1}
 #couch{touch-action:none}
@@ -257,7 +262,7 @@ select{font:700 10.5px var(--mono); color:var(--cream); background:var(--bake2);
     <p class="hint">Tap cells to choose the sections a lane is on. Drag from a lane’s jack to a member’s ON input: that member then plays only in those sections. A member with no cable plays all the time.</p>
   </section>
   <div id="wall"></div>
-  <p class="hint hint-notes">Swipe the band sideways to reach every member. Drag from a module’s jack to a member’s input; drag a plugged input away to unplug it. Tap a module to edit it, a member for its instrument and effects, or an empty third input to change what it controls. <b>Patch Band v1.6.3</b></p>
+  <p class="hint hint-notes">Swipe the band sideways to reach every member. Drag from a module’s jack to a member’s input; drag a plugged input away to unplug it. Tap a module to edit it, a member for its instrument and effects, or an empty third input to change what it controls. <b>Patch Band 3D v1.8.2</b></p>
 </div>
 <div id="couch">
   <div id="zoom"><div id="scene">
@@ -268,22 +273,23 @@ select{font:700 10.5px var(--mono); color:var(--cream); background:var(--bake2);
       <div id="tvThird"><span></span><b></b><i></i></div>
       <div id="tvGlass"></div>
     </div>
-    <button class="shade" style="left:0; width:5.83%" aria-pressed="false" aria-label="Blinds: switch between day and night"></button>
-    <button class="shade" style="left:26.67%; width:11.16%" aria-pressed="false" aria-label="Blinds: switch between day and night"></button>
+    <button class="shade" aria-pressed="false" aria-label="Blinds: switch between day and night"></button>
+    <button class="shade" aria-pressed="false" aria-label="Blinds: switch between day and night"></button>
     <button id="tvBtn" aria-label="Step into the TV to rewire the band"></button>
     <button id="remoteBtn" aria-label="Remote: next channel, a new band"></button>
     <button id="vcrBtn" aria-label="Video recorder: save this band and song to a tape"></button>
     <div id="rack" aria-label="Rack of saved tapes"></div>
+    <div id="guide" aria-label="Channel guide"></div>
     <div id="tapeCard" hidden>
       <button id="tapePlay" aria-label="Put this tape in the recorder and play it"><span class="tc-label"><span></span><b></b><i></i></span><span class="tc-reels"><u></u><u></u></span></button>
       <p>Playing its chorus. Tap the tape to put it in the recorder, or tap beside it to put it back.</p>
       <button id="tapeErase">Erase this tape</button>
     </div>
   </div></div>
-  <span id="ver">Patch Band v1.6.3</span>
-  <button id="toRack" class="couch-nav" aria-label="Look at the tape rack">Tapes ›</button><button id="toTv" class="couch-nav" hidden aria-label="Look back at the TV">‹ TV</button>
+  <span id="ver">Patch Band 3D v1.8.2</span>
+  <button id="toGuide" class="couch-nav" aria-label="Look at the channel guide">‹ Channels</button><button id="toRack" class="couch-nav" aria-label="Look at the tape rack">Tapes ›</button><button id="toTv" class="couch-nav" hidden aria-label="Look back at the TV">‹ TV</button>
   <p id="couchSay" role="status"></p>
-  <p id="couchHint">Tap the remote for the next channel, the TV to step inside and rewire the band, the recorder under it to save this song to a tape. Swipe left for your tapes.</p>
+  <p id="couchHint">Tap the remote for the next channel, the TV to step inside and rewire the band, the recorder under it to save this song to a tape. Swipe left for your tapes, right for the channels.</p>
 </div>
 <div id="fx" class="fx-wrap" hidden>
   <div class="fx-card" role="dialog" aria-modal="true" aria-label="Effect pedals">
@@ -307,7 +313,7 @@ select{font:700 10.5px var(--mono); color:var(--cream); background:var(--bake2);
 <pre id="stats" hidden aria-live="off"></pre>
 <script type="module">
 /**
- * PatchWire v1.4.1 — signal generators, combiners and an analog patch-cable UI.
+ * PatchWire v1.4.2 — signal generators, combiners and an analog patch-cable UI.
  * Extracted from Patch Band. No dependencies. ES module.
  *
  * The library has two layers you can use separately:
@@ -967,10 +973,11 @@ class Patchbay {
     [...this.cables].forEach(c => this.disconnect(c.sink)); this.pending = [];
     this.combiners.forEach(c => { this.sinks.delete(c.inputs.a); this.sinks.delete(c.inputs.b); });
     this.generators = []; this.combiners = []; this._order = []; this._srcN = 0; if (json.bpm) this.bpm = +json.bpm;
+    this._loading = true;                 // listeners (the UI) wait for the single 'load' event instead of reacting to every module and cable
     (json.generators || []).forEach(o => { try { this.addGenerator(o); } catch (e) { console.warn('[patchwire]', e.message); } });
     (json.combiners || []).forEach(o => { try { this.addCombiner(o); } catch (e) { console.warn('[patchwire]', e.message); } });
     (json.cables || []).forEach(c => { if (!this.connect(c.source, c.sink, { hue: c.hue }) && this.getSource(c.source) && !this.sinks.has(c.sink)) this.pending.push({ ...c }); });
-    this._emit('load'); this._emit('change');
+    this._loading = false; this._emit('load'); this._emit('change');
     return this;
   }
 
@@ -1339,11 +1346,12 @@ class PatchbayUI {
 
     const B = this.bay;
     this._unsub = [
-      B.on('connect', c => { this._ensureRope(c, true); this._dirty = true; }),
+      B.on('connect', c => { if (B._loading) return; this._ensureRope(c, true); this._dirty = true; }),
       B.on('disconnect', c => { if (!this.drag || this.drag.cable !== c) this.ropes.delete(c); this._dirty = true; }),
-      B.on('add', () => { this._dirty = true; this.opts.wall && this._buildWall(); }),
+      B.on('add', () => { if (B._loading) return; this._dirty = true; this.opts.wall && this._buildWall(); }),
       B.on('remove', s => { this._dirty = true; if (s && s.kind !== 'input') this.opts.wall && this._buildWall(); else if (s) this.unmountSink(s.id); }),
-      B.on('load', () => { this.ropes.clear(); this._dirty = true; this.opts.wall && this._buildWall(); for (const c of B.cables) this._ensureRope(c, true); }),   // load() plugs the cables before the wall exists: lay them again
+      // A whole patch arrived: one rebuild. While the UI is paused (covered by something else) even that waits until it is looked at again.
+      B.on('load', () => { this.ropes.clear(); this._dirty = true; if (this.opts.paused) { this._stale = true; return; } this._reload(); }),
       B.on('param', s => this._label(s)),
     ];
 
@@ -1450,7 +1458,9 @@ class PatchbayUI {
   /** Tell the UI that jacks or scopes have moved inside the page (it re-reads their positions at the next frame). */
   invalidate() { this._needMeasure = true; }
   /** Re-measure everything (called every frame anyway; useful after big layout changes). */
-  layout() { this._sizeCanvas(); this._measure(); }
+  /** @internal Rebuild the wall and lay every cable after a load. The cables settle into their hang when they first come into view. */
+  _reload() { this._stale = false; this.opts.wall && this._buildWall(); for (const c of this.bay.cables) this._ensureRope(c, false); this._needMeasure = true; this._dirty = true; }
+  layout() { if (this._stale && !this.opts.paused) this._reload(); this._sizeCanvas(); this._measure(); }
   /** Remove all DOM and listeners. The patchbay keeps running. */
   destroy() {
     cancelAnimationFrame(this._raf); this._unsub.forEach(u => u());
@@ -1640,6 +1650,7 @@ class PatchbayUI {
   _frameLoop(now) {
     this._raf = requestAnimationFrame(t => this._frameLoop(t));
     if (this.opts.paused) { this._last = now; return; }                    // the app is showing something else: draw nothing
+    if (this._stale) this._reload();
     const raw = now - this._last, dt = Math.min(.05, raw / 1000), PF = this.perf, p0 = performance.now(); this._last = now; this._frame++;
     this._emit('frame', dt);
     if (this.opts.lite === 'auto' && !this._lite && raw < 200) {            // can't keep up? draw cheaper from now on
@@ -2091,8 +2102,9 @@ const COMBS = [{ op: 'S&H' }, { op: 'MIX', invert: true }, { op: 'GATE' }, { op:
 const INSTR = {
   drums: {
     electro: { name: 'Electro', kick: { f0: 165, f1: 45, sw: .12, dec: .42, click: .22, lvl: 1 }, snare: { tone: 200, tdec: .08, nf: 1800, nq: .8, ndec: .2, lvl: .9 }, hat: { f: 8500, dec: .04, lvl: .22 }, crash: { f: 6500, dec: .8, lvl: .2 } },
-    rock: { name: 'Rock kit', kick: { f0: 230, f1: 58, sw: .035, dec: .17, click: .65, lvl: 1 }, snare: { tone: 215, tdec: .1, nf: 2400, nq: .5, ndec: .24, lvl: 1.1 }, hat: { f: 6500, dec: .07, lvl: .2 },
-      crash: { f: 3800, dec: 1.5, lvl: .3 } },
+    // an acoustic kit: a low thud with a beater click, a snare of two drum tones under rattling wires, noisy cymbals; more of the room on it
+    rock: { name: 'Rock kit', room: .24, kick: { ac: true, f0: 108, f1: 50, sw: .05, dec: .3, click: .55, lvl: .95 }, snare: { ac: true, tone: 188, tdec: .1, nf: 4200, nq: .6, ndec: .2, lvl: .8 }, hat: { ac: true, f: 7400, dec: .055, lvl: .19 }, crash: { ac: true, f: 4400, dec: 1.7, lvl: .2 } },
+    boombap: { name: 'Boom bap', room: .14, kick: { f0: 130, f1: 44, sw: .07, dec: .34, click: .35, lvl: 1.05 }, snare: { ac: true, tone: 200, tdec: .08, nf: 3600, nq: .7, ndec: .16, lvl: .8 }, hat: { f: 8200, dec: .035, lvl: .17 }, crash: { f: 5200, dec: 1, lvl: .14 } },
     eighties: { name: 'Eighties', kick: { f0: 150, f1: 48, sw: .09, dec: .3, click: .3, lvl: 1 }, snare: { tone: 185, tdec: .1, nf: 1900, nq: .5, ndec: .3, lvl: 1.15 }, hat: { f: 8000, dec: .045, lvl: .2 }, crash: { f: 5000, dec: 1.2, lvl: .22 } },   // big, long snare
     dusty: { name: 'Dusty', kick: { f0: 105, f1: 50, sw: .07, dec: .26, click: .04, lvl: .8 }, snare: { tone: 260, tdec: .05, nf: 2600, nq: .9, ndec: .1, lvl: .55 }, hat: { f: 6200, dec: .03, lvl: .1 }, crash: { f: 4200, dec: .8, lvl: .1 } },   // soft and close
     roots: { name: 'Roots', kick: { f0: 120, f1: 42, sw: .1, dec: .5, click: .1, lvl: 1.1 }, snare: { tone: 420, tdec: .05, nf: 3200, nq: 1.2, ndec: .08, lvl: .7 }, hat: { f: 9000, dec: .035, lvl: .16 }, crash: { f: 5200, dec: .7, lvl: .16 } },   // snare = a rim click
@@ -2135,12 +2147,14 @@ const INSTR = {
 // The band is built from a pool of seven players of four kinds. A genre's line-up picks which of them are on stage, what each is called,
 // which instrument it plays and what its role is. (The ids are historical: 'bass' and 'lead' are simply the two single-note players,
 // 'keys' and 'guitar' the two chord players.)
-const KIND = { drums: 'drums', bass: 'mono', lead: 'mono', keys: 'poly', guitar: 'poly', voice: 'voice', voice2: 'voice' };
+const KIND = { drums: 'drums', bass: 'mono', lead: 'mono', keys: 'poly', guitar: 'poly', voice: 'voice', voice2: 'voice', dj: 'dj' };
+const SCRATCHES = ['FWD', 'BACK', 'BABY', 'CHIRP', 'DRAG'];
 { const { guitar: leadgtr, ...lead } = INSTR.lead; INSTR.mono = { ...INSTR.bass, ...lead, leadgtr }; INSTR.poly = { ...INSTR.keys, ...INSTR.guitar }; INSTR.voice = null;
   for (const [k, n] of [['synth', 'Synth bass'], ['growl', 'Growl bass'], ['dub', 'Dub bass'], ['upright', 'Upright bass'], ['saw', 'Saw lead']]) INSTR.mono[k].name = n;
   for (const [k, n] of [['chug', 'Chug guitar'], ['power', 'Open guitar'], ['clean', 'Clean guitar'], ['skank', 'Skank guitar'], ['jazz', 'Jazz guitar']]) INSTR.poly[k].name = n; }
 INSTR.poly.pluck = { name: 'Pluck synth', w: ['sawtooth', 'square'], mul: 1, det: 7, lvlB: .5, base: 57, cut: [900, 3200], atk: .003, dec: .09, sus: .2, rel: .08, lvl: .22 };
-for (const [k, n] of [['synth', 'Bass'], ['growl', 'Bass'], ['dub', 'Bass'], ['upright', 'Upright'], ['saw', 'Synth'], ['leadgtr', 'Lead gtr'], ['twin', 'Twin lead'], ['soft', 'Soft lead'], ['sax', 'Sax']]) INSTR.mono[k].short = n;
+INSTR.mono.sub808 = { name: '808 bass', w: ['sine', 'sine'], mix: 0, det: 0, cut: [420, 380], peak: 1.1, q: .5, glide: .05, atk: .004, dec: .5, sus: .4, rel: .22, lvl: .72, fx: { gain: { on: true, drive: .3, level: .62 } } };   // a long sine boom that slides between notes
+for (const [k, n] of [['sub808', '808'], ['synth', 'Bass'], ['growl', 'Bass'], ['dub', 'Bass'], ['upright', 'Upright'], ['saw', 'Synth'], ['leadgtr', 'Lead gtr'], ['twin', 'Twin lead'], ['soft', 'Soft lead'], ['sax', 'Sax']]) INSTR.mono[k].short = n;
 for (const [k, n] of [['stab', 'Stabs'], ['pad', 'Pad'], ['lush', 'Pad'], ['epiano', 'Piano'], ['chug', 'Chug gtr'], ['power', 'Guitar'], ['clean', 'Guitar'], ['skank', 'Skank gtr'], ['jazz', 'Guitar'], ['pluck', 'Pluck']]) INSTR.poly[k].short = n;
 const instTable = id => INSTR[KIND[id]] || null;
 // Roles: which notes a member takes from its cables. [name, what it does]
@@ -2150,7 +2164,8 @@ const ROLES = {
   poly: { chords: ['Chords', 'The whole chord at once.'], power: ['Power chords', 'Root, fifth and octave: no third, heavy under distortion.'], arp: ['Arpeggio', 'The chord’s notes one after another.'] },
   voice: { lead: ['Lead', 'Sings the words.'], harmony: ['Harmony', 'Sings the words a third higher.'], oohs: ['Oohs', 'Holds “ooh” and “aah” on notes of the chord.'], hype: ['Hype', 'Short shouts: “yeah”, “hey”, “come on”.'] },
 };
-const ROLE0 = { mono: 'melody', poly: 'chords', voice: 'lead' };
+ROLES.dj = { scratch: ['Scratch', 'Every trigger is a scratch. The NOTE signal picks which: forward, back, back-and-forth, two chirps, a long drag. Without one they take turns.'], cuts: ['Cuts', 'Chops the whole band like a crossfader: you hear it only while the PLAY signal is high.'] };
+const ROLE0 = { mono: 'melody', poly: 'chords', voice: 'lead', dj: 'scratch' };
 /** The kit the sound engine plays: the chosen instrument of every player. */
 const kitOf = sel => ({ ...INSTR.drums[sel.drums], bass: INSTR.mono[sel.bass], lead: INSTR.mono[sel.lead], keys: INSTR.poly[sel.keys], guitar: INSTR.poly[sel.guitar] });
 const INST0 = { drums: 'electro', bass: 'synth', lead: 'saw', keys: 'stab', guitar: 'clean' };
@@ -2232,6 +2247,15 @@ Object.assign(GENRES, {
     vox: { styles: ['sing', 'robot'], types: ['tenor'] }, lyrics: GENRES.synthwave.lyrics,
     patch: () => ({ g: [B('FOUR'), B('BACKBEAT'), B('EIGHTHS'), CR, R(4), HOLD(4), E(3), SPARE, E(pick([5, 6, 7])), R(8), SW, R(8)], w: [...TEST_W, ['gen9', 'voice2.play']] }) },
 });
+// hip-hop: swung boom-bap drums, a long sliding 808, a few electric-piano chords, a rapper with a hype voice behind him, and a DJ scratching
+GENRES.hiphop = { name: 'Hip-Hop', bpm: [84, 96], swing: .58, chord: 'seventh', scale: 'penta',
+  lineup: [{ id: 'drums', name: 'Drums', inst: 'boombap' }, { id: 'bass', name: '808', inst: 'sub808', role: 'bass' }, { id: 'keys', name: 'Keys', inst: 'epiano', role: 'chords' }, { id: 'dj', name: 'DJ', role: 'scratch' },
+    { id: 'voice', name: 'Rapper', role: 'lead', type: 'tenor' }, { id: 'voice2', name: 'Hype', role: 'hype', type: 'deep' }],
+  progs: [{ mode: 'min', deg: [0, 5] }, { mode: 'min', deg: [0, 3, 5, 4] }, { mode: 'min', deg: [0, 6, 5, 6] }, { mode: 'min', deg: [0, 0, 3, 4] }],
+  fx: { keys: { chorus: { on: true, rate: .25, depth: .6, mix: .4 } }, dj: { echo: { on: true, time: .75, repeats: .25, mix: .18 } } },
+  vox: { styles: ['rap'], types: ['tenor'] }, lyrics: GENRES.voxrap.lyrics,
+  patch: () => ({ g: [B('PUSH'), B('BACKBEAT'), B('EIGHTHS'), CR, R(4), B('CHARLESTON'), E(pick([2, 3]), pick([0, .125])), E(2, .375), E(pick([9, 11])), E(pick([4, 5]), .125), SW, R(8)],
+    w: [['gen1', 'drums.kick'], ['gen2', 'drums.snare'], ['gen3', 'drums.hat'], ['gen7', 'bass.play'], ['gen5', 'bass.note'], ['gen6', 'keys.play'], ['gen8', 'voice2.play'], ['gen12', 'voice.note'], ['gen10', 'dj.play']] }) };
 const song = { genre: 'techno', swing: .5, inst: { ...INST0 }, form: null, stage: 'techno' };
 
 /* ---------- song form: sections with their own chords, and lanes that say who plays when ---------- */
@@ -2250,6 +2274,7 @@ const SONG_LANES = {
 // what the energy level is patched into by default: brighter chords in the loud sections; in metal it picks the voice (growled verses, clean choruses)
 const SONG_EXTRA = { techno: { extra: [['gen13', 'keys.tone']] }, synthwave: { extra: [['gen13', 'keys.tone']] }, reggae: { extra: [['gen13', 'keys.tone']] }, jazz: { extra: [['gen13', 'keys.tone']] }, lofi: { extra: [['gen13', 'keys.tone']] },
   metal: { extra: [['gen13', 'voice.tone']], mods: { voice: 'style' } } };
+SONG_LANES.hiphop = { drums: 2, bass: 2, keys: 1, dj: 5, voice: 3, voice2: 4 }; SONG_EXTRA.hiphop = { extra: [['gen9', 'voice.play'], ['gen13', 'keys.tone']] };      // the rapper raps straight from his rhythm, verses and choruses; the DJ has the intro and the solo
 for (const id of ['voxopera', 'voxrap', 'voxwave']) { SONG_LANES[id] = {}; SONG_EXTRA[id] = { extra: [['gen9', 'voice.play']] }; }        // the lead sings all the time, straight from its rhythm
 /** A new form for a genre at a tempo: section lengths that add up to about a minute, a chord progression for each section, the default lanes. */
 function genForm(G, bpm, verse) {
@@ -2456,7 +2481,8 @@ class Sound {
     // per member: voices -> inp -> (pedals that are switched on) -> bus (the mute fader) -> pan (its place between left and right) -> output
     this.bus = {}; this.inp = {}; this.fx = {}; this.pan = {};
     this.send = {};
-    for (const [id, room] of [['drums', .1], ['bass', 0], ['keys', .5], ['guitar', .18], ['lead', .3], ['voice', .35], ['voice2', .4]]) { this.pan[id] = C.createStereoPanner(); this.pan[id].connect(this.out); this.bus[id] = G(1, this.pan[id]); this.inp[id] = G(1, this.bus[id]); this.fx[id] = {}; this.send[id] = room ? G(room, this.rev) : null; if (room) this.bus[id].connect(this.send[id]); }
+    this.mix = G(1, this.out);                 // everyone but the DJ goes through here, so the DJ can chop the band
+    for (const [id, room] of [['drums', .1], ['bass', 0], ['keys', .5], ['guitar', .18], ['lead', .3], ['voice', .35], ['voice2', .4], ['dj', .15]]) { this.pan[id] = C.createStereoPanner(); this.pan[id].connect(id === 'dj' ? this.out : this.mix); this.bus[id] = G(1, this.pan[id]); this.inp[id] = G(1, this.bus[id]); this.fx[id] = {}; this.send[id] = room ? G(room, this.rev) : null; if (room) this.bus[id].connect(this.send[id]); }
     // inside the kit: hi-hat a little to one side, crash to the other; kick and snare stay in the middle
     this.hatAt = C.createStereoPanner(); this.hatAt.pan.value = .3; this.hatAt.connect(this.inp.drums); this.crashAt = C.createStereoPanner(); this.crashAt.pan.value = -.3; this.crashAt.connect(this.inp.drums);
     const nb = this.noise = C.createBuffer(1, C.sampleRate, C.sampleRate), nd = nb.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
@@ -2481,6 +2507,9 @@ class Sound {
       z.osc = [1, 0, 0].map(g => { const gn = G(g, z.voiced), o = osc('sawtooth', gn); z.vib.connect(o.detune); return { o, g: gn }; });
       ns.connect(z.breath); z.fricF = bp(5000, 2); ns.connect(z.fricF); z.fric = G(0, z.sum); z.fricF.connect(z.fric);
     }
+    // the DJ's record: a buzzy "aah" (a saw through two voice-like resonances, with some noise) whose speed is thrown about, as a hand does with vinyl
+    { const z = this.djz = {}; z.amp = G(0, this.inp.dj); z.f1 = bp(800, 5); z.f2 = bp(1900, 6); z.fn = bp(1400, 1.5); z.f1.connect(z.amp); z.f2.connect(G(.7, z.amp)); z.fn.connect(G(.5, z.amp));
+      const pre = G(.6); pre.connect(z.f1); pre.connect(z.f2); z.o = osc('sawtooth', pre); ns.connect(z.fn); }
     ns.start(); this.setKit(kit || kitOf(INST0));
   }
   /** A player that is not in the line-up is unplugged from the output: the browser then skips everything behind it, so it costs nothing. */
@@ -2494,6 +2523,7 @@ class Sound {
     this.kit = k;
     for (const id in this.mono) { const V = this.mono[id], i = k[id], vb = i.vib || [5, 0];
       V.o[0].type = i.w[0]; V.o[1].type = i.w[1]; V.o[0].detune.value = -(i.det || 0) / 2; V.o[1].detune.value = (i.det || 0) / 2; V.g2.gain.value = i.mix; V.flt.Q.value = i.q; V.lfo.frequency.value = vb[0]; for (const g of V.vib) g.gain.value = vb[1]; }
+    this.send.drums.gain.value = k.room != null ? k.room : .1;                 // an acoustic kit carries more of the room
     for (const id in this.poly) for (const s of this.poly[id].slots) { s.a.type = k[id].w[0]; s.b.type = k[id].w[1]; s.b.detune.value = k[id].det; s.gb.gain.value = k[id].lvlB; }
   }
   /** Sing one syllable. Its consonants are placed before t so that the vowel lands on the beat. */
@@ -2550,22 +2580,40 @@ class Sound {
     const g = C.createGain(); g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
     s.loop = dur > .4; s.connect(f); f.connect(g); g.connect(to || this.inp.drums); s.start(t, Math.random() * .5); s.stop(t + dur + .02); return g;
   }
+  /** One scratch. kind: 0 forward · 1 back · 2 back-and-forth · 3 two chirps · 4 a long drag. Each is a list of moves [seconds, speed from, speed to, loudness]. */
+  djOn(t, kind, tone, vel = 1) {
+    const z = this.djz, base = 130 + tone * 120, P = [[z.o.frequency, 1], [z.f1.frequency, 5.6], [z.f2.frequency, 12.5], [z.fn.frequency, 9]];
+    const moves = [[[.09, .35, 1.7, 1]], [[.1, 1.7, .35, 1]], [[.07, .35, 1.6, 1], [.085, 1.6, .35, .9]], [[.045, .5, 1.8, 1], [.03, 1, 1, 0], [.045, .5, 1.8, 1]], [[.28, .3, 1.3, 1]]][kind] || [];
+    for (const [p] of P) p.cancelScheduledValues(t); z.amp.gain.cancelScheduledValues(t); let at = t;
+    for (const [dur, from, to, lv] of moves) { for (const [p, m] of P) { p.setValueAtTime(Math.min(base * m * from, 9000), at); p.exponentialRampToValueAtTime(Math.min(base * m * to, 9000), at + dur); } z.amp.gain.setTargetAtTime(lv * vel * 1.2, at, .004); at += dur; }
+    z.amp.gain.setTargetAtTime(0, at, .008);
+  }
+  /** The DJ's crossfader: open lets the band through, closed leaves only a little of it. */
+  cut(t, open) { this.mix.gain.cancelScheduledValues(t); this.mix.gain.setTargetAtTime(open ? 1 : .08, t, .004); }
+  /** A sine that drops in pitch and dies away: the body of a drum. */
+  _thud(t, f0, f1, sweep, dec, gain, type = 'sine') {
+    const C = this.ctx, o = C.createOscillator(), g = C.createGain(); o.type = type;
+    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + sweep);
+    g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(.001, t + dec); o.connect(g); g.connect(this.inp.drums); o.start(t); o.stop(t + dec + .02);
+  }
   kick(t, v) {
-    const C = this.ctx, k = this.kit.kick, o = C.createOscillator(), g = C.createGain();
-    o.frequency.setValueAtTime(k.f0, t); o.frequency.exponentialRampToValueAtTime(k.f1, t + k.sw);
-    g.gain.setValueAtTime(.95 * v * k.lvl, t); g.gain.exponentialRampToValueAtTime(.001, t + k.dec);
-    o.connect(g); g.connect(this.inp.drums); o.start(t); o.stop(t + k.dec + .02);
-    this._noise(t, .025, 'lowpass', 2600, .5, k.click * v);
+    const k = this.kit.kick, L = v * k.lvl;
+    if (k.ac) {                            // acoustic: a short low thud, the head's own tone above it, the beater's click, a puff of air from the shell
+      this._thud(t, k.f0, k.f1, k.sw, k.dec, .95 * L); this._thud(t, k.f1 * 2.4, k.f1 * 2.1, .03, .07, .3 * L);
+      this._noise(t, .014, 'bandpass', 3200, 1, k.click * v); this._noise(t, .11, 'lowpass', 190, .5, .3 * L);
+    } else { this._thud(t, k.f0, k.f1, k.sw, k.dec, .95 * L); this._noise(t, .025, 'lowpass', 2600, .5, k.click * v); }
   }
   snare(t, v) {
-    const C = this.ctx, k = this.kit.snare, o = C.createOscillator(), g = C.createGain(); o.type = 'triangle';
-    o.frequency.setValueAtTime(k.tone, t); o.frequency.exponentialRampToValueAtTime(k.tone * .7, t + k.tdec);
-    g.gain.setValueAtTime(.4 * v * k.lvl, t); g.gain.exponentialRampToValueAtTime(.001, t + k.tdec + .03);
-    o.connect(g); g.connect(this.inp.drums); o.start(t); o.stop(t + k.tdec + .05);
-    this._noise(t, k.ndec, 'bandpass', k.nf, k.nq, .55 * v * k.lvl);
+    const k = this.kit.snare, L = v * k.lvl;
+    if (k.ac) {                            // acoustic: two tones of the drum head, the wires rattling under it, a crack at the front
+      this._thud(t, k.tone, k.tone * .9, .04, k.tdec, .34 * L, 'triangle'); this._thud(t, k.tone * 1.78, k.tone * 1.66, .03, k.tdec * .7, .18 * L);
+      this._noise(t, k.ndec, 'bandpass', k.nf, k.nq, .5 * L); this._noise(t, k.ndec * .6, 'highpass', 6200, .5, .22 * L); this._noise(t, .018, 'highpass', 1800, .5, .5 * L);
+    } else { this._thud(t, k.tone, k.tone * .7, k.tdec, k.tdec + .03, .4 * L, 'triangle'); this._noise(t, k.ndec, 'bandpass', k.nf, k.nq, .55 * L); }
   }
-  crash(t, v) { const k = this.kit.crash; if (k) { this._noise(t, k.dec, 'highpass', k.f, .5, k.lvl * v, this.crashAt); this._noise(t, k.dec * .5, 'bandpass', k.f * 1.9, 3, k.lvl * .5 * v, this.crashAt); } }
-  hat(t, v) { const k = this.kit.hat; this._noise(t, k.dec, k.type || 'highpass', k.f, k.q || .7, k.lvl * v, this.hatAt); }
+  crash(t, v) { const k = this.kit.crash; if (!k) return;
+    if (k.ac) { this._noise(t, k.dec, 'highpass', k.f, .5, k.lvl * v, this.crashAt); this._noise(t, k.dec * .7, 'bandpass', k.f * 1.55, 1.5, k.lvl * .6 * v, this.crashAt); this._noise(t, k.dec * .4, 'bandpass', k.f * 2.2, 2, k.lvl * .5 * v, this.crashAt); }
+    else { this._noise(t, k.dec, 'highpass', k.f, .5, k.lvl * v, this.crashAt); this._noise(t, k.dec * .5, 'bandpass', k.f * 1.9, 3, k.lvl * .5 * v, this.crashAt); } }
+  hat(t, v) { const k = this.kit.hat; this._noise(t, k.dec, k.type || 'highpass', k.f, k.q || .7, k.lvl * v, this.hatAt); if (k.ac) this._noise(t, k.dec * .6, 'bandpass', k.f * 1.45, 2.5, k.lvl * .7 * v, this.hatAt); }
   _g(v, to) { const g = this.ctx.createGain(); g.gain.value = v; g.connect(to); return g; }
   _pluck(V, k, t, tone, vel) {                 // shared by bass and lead: filter opens and settles, level rises and (if the kit says so) dies away
     const cut = k.cut[0] + tone * k.cut[1];
@@ -2622,6 +2670,7 @@ const MEMBERS = [
   { id: 'guitar', name: 'Guitar', jacks: [{ k: 'play', label: 'PLAY', kind: 'trig' }, { k: 'note', label: 'NOTE', kind: 'note' }, { k: 'tone', label: 'TONE', kind: 'tone' }] },
   { id: 'lead', name: 'Lead', jacks: [{ k: 'play', label: 'PLAY', kind: 'trig' }, { k: 'note', label: 'NOTE', kind: 'note' }, { k: 'tone', label: 'TONE', kind: 'tone' }] },
   { id: 'voice', name: 'Voice', jacks: [{ k: 'play', label: 'PLAY', kind: 'trig' }, { k: 'note', label: 'NOTE', kind: 'note' }, { k: 'tone', label: 'TONE', kind: 'tone' }] },
+  { id: 'dj', name: 'DJ', jacks: [{ k: 'play', label: 'PLAY', kind: 'trig' }, { k: 'note', label: 'NOTE', kind: 'note' }, { k: 'tone', label: 'TONE', kind: 'tone' }] },
   { id: 'voice2', name: 'Backing', jacks: [{ k: 'play', label: 'PLAY', kind: 'trig' }, { k: 'note', label: 'NOTE', kind: 'note' }, { k: 'tone', label: 'TONE', kind: 'tone' }] },
 ];
 // every singer has their own state. styles: up to three ways of singing, in order; cur: the one used for the latest note (the first, unless a STYLE cable chooses)
@@ -2683,6 +2732,8 @@ function onEdge(e) {
     return;
   }
   if (k !== 'play') return;
+  if (KIND[id] === 'dj' && m.role === 'cuts') {      // the crossfader follows the PLAY signal
+    if (live) sound.cut(t, e.rising); if (e.rising) { closeNote(m, t, true); const ev = { label: 'CUT', lvl: .5, f: bay.frame, off: null, lane: 0 }; m.open = ev; m.events.push(ev); } else closeNote(m, t, true); return; }
   if (!e.rising) { closeNote(m, t); return; }
   strike(m, t, pulse);
 }
@@ -2716,7 +2767,8 @@ function strike(m, t, pulse) {
     if (live) sound.voiceOn(id, t, { midi: n.midi + (onBeat ? 2 : 0), harm: n.harm, syl, tone, vel: (role === 'oohs' ? vel * .45 : vel) * (S.stress ? (onBeat ? 1.15 : .85) : 1), style, type: X.type });
     ev = { label: syl.text, lvl: n.lvl };
   } else
-  if (kind === 'mono') {
+  if (kind === 'dj') { const i = v == null ? m.arp++ % SCRATCHES.length : Math.min(SCRATCHES.length - 1, Math.floor((v + 1) / 2 * SCRATCHES.length)); if (live) sound.djOn(t, i, tone, vel); ev = { label: SCRATCHES[i], lvl: i / (SCRATCHES.length - 1) }; }
+  else if (kind === 'mono') {
     let n;
     if (role === 'bass' || role === 'walk') n = conductor.bass(v, pulse, role === 'walk');
     else if (role === 'double') { const b = band.bass; n = conductor.bass(m === b ? v : bay.read('bass.note'), pulse, b.role === 'walk'); n.midi += m === b ? 0 : 12; }
@@ -2769,6 +2821,8 @@ function setPlayMode(m, mode) {
   if (m.playBtn) { const fol = mode === 'follow', other = m.def.id === 'drums' ? 'roll' : 'follow'; m.playBtn.setAttribute('aria-pressed', fol);
     m.playBtn.title = fol ? `Now: ${other} the signal. Tap for trigger.` : `Now: trigger on each rise. Tap to ${other} the signal.`; m.playBtn.setAttribute('aria-label', `${m.name}: PLAY input ${fol ? other + 's the signal' : 'triggers on each rise'}. Switch.`); }
 }
+const openFader = () => { if (sound) sound.cut(sound.ctx.currentTime, true); };
+bay.on('disconnect', c => { if (c && c.sink === 'dj.play') openFader(); }); bay.on('load', openFader);
 bay.on('connect', c => {               // plugging into WAH or ECHO switches that pedal on, otherwise the cable would do nothing
   const m = c.sink.endsWith('.tone') && band[c.sink.slice(0, -5)]; if (!m || !pedalMod(m) || m.fx[m.mod].on) return;
   m.fx[m.mod].on = true; fxDots(m); if (sound) sound.setFx(m.def.id, m.fx, transport.bpm); if (fxCur === m) fxShow(m.mod);
@@ -2917,7 +2971,7 @@ function start() {
   })().finally(() => { starting = null; }));
 }
 function stop() {
-  transport.stop(); if (sound) sound.releaseAll(); for (const id in band) closeNote(band[id], 0, true);
+  transport.stop(); openFader(); if (sound) sound.releaseAll(); for (const id in band) closeNote(band[id], 0, true);
   playing = false; playBtn.classList.remove('on'); playBtn.querySelector('b').textContent = 'Play'; playBtn.setAttribute('aria-pressed', 'false');
 }
 playBtn.onclick = () => (playing ? stop() : start());
@@ -3038,7 +3092,7 @@ const roleEl = fxWrap.querySelector('.rolerow'), roleBox = roleEl.querySelector(
 function roleShow(m) {
   const T = ROLES[KIND[m.def.id]]; roleEl.hidden = !T; roleBox.innerHTML = ''; if (!T) return;
   for (const k in T) { const b = document.createElement('button'); b.className = 'chip'; b.textContent = T[k][0]; b.setAttribute('aria-pressed', m.role === k);
-    b.onclick = () => { m.role = k; m.arp = 0; m.fol = null; closeNote(m, sound ? sound.ctx.currentTime : 0); roleShow(m); applyPans(); panShow(m); }; roleBox.appendChild(b); }
+    b.onclick = () => { m.role = k; m.arp = 0; m.fol = null; closeNote(m, sound ? sound.ctx.currentTime : 0); openFader(); roleShow(m); applyPans(); panShow(m); }; roleBox.appendChild(b); }
   roleNote.textContent = (T[m.role] || ['', ''])[1];
 }
 // which instrument this member plays (every panel except the Voice)
@@ -3128,6 +3182,10 @@ const LOOKS = {
     title: [['Rainy', 'Late', 'Soft', 'Half', 'Slow', 'Sunday', 'Warm', 'Faded'], ['Homework', 'Window', 'Tea', 'Daydream', 'Blanket', 'Notebook', 'Evening', 'Static']],
     tops: ['#8a9ac8', '#c89a8a', '#8ab89a', '#c8b88a', '#a88ac8', '#e8e2d0', '#6a7a8a'], legs: ['#4a5068', '#5a4a44', '#3a4a48'], hair: ['#1c1410', '#3a2618', '#6a4a2a', '#8a6a8a', '#2a1a12'],
     head: ['phones', 'phones', 'cap', 'big', 'phones', 'cap'], accent: ['#ffc87a', '#a8c8ff', '#ffa8c8'], gear: ['#c98a3a', '#8a9ac8', '#e8e2d0', '#6a4a30'] },
+  hiphop: { band: [['FRESH', 'GOLD', 'BLOCK', 'STREET', 'SMOOTH', 'DEEP', 'NIGHT', 'REAL'], ['CREW', 'SQUAD', 'CIPHER', 'POETS', 'KINGS', 'FAMILY', 'UNION', 'SOUND']], join: ' ',
+    title: [['Corner', 'Midnight', 'Golden', 'Concrete', 'Summer', 'Subway', 'Rooftop', 'Late'], ['Stories', 'Anthem', 'Dreams', 'Hustle', 'Cypher', 'Avenue', 'Session', 'Tales']],
+    tops: ['#e8e2d0', '#c83a2a', '#2a4a8a', '#e8b030', '#3a8a5a', '#2a2a32', '#8a4ae8'], legs: ['#2a2a32', '#3a4a6a', '#4a4038'], hair: ['#1c1410', '#2a1a12', '#3a2618', '#1c1410', '#4a2a1a'],
+    head: ['cap', 'cap', 'cap', 'phones', 'cap', 'big'], accent: ['#ffc828', '#ff5a3c', '#58d6ff'], gear: ['#2a2a32', '#c83a2a', '#e8e2d0', '#ffc828'] },
 };
 function genLook(genre) {
   const L = LOOKS[genre], six = pool => { const s = [...pool].sort(() => Math.random() - .5); return Array.from({ length: 6 }, (_, i) => s[i % s.length]); }, each = f => Array.from({ length: 6 }, f);
@@ -3277,6 +3335,11 @@ function performer(S, o) {
     front.push(() => { cap(x - 7 * s, ky + 2 * s, x + 6 * s, feetY, .8 * s, .8 * s, dark, 0); cap(x + 7 * s, ky + 2 * s, x - 6 * s, feetY, .8 * s, .8 * s, dark, 0); box(x - kw, ky - 1.5 * s, kw * 2, 4 * s, hexRgb(o.color || W.gears[i]), .5); box(x - kw + 1 * s, ky + .2 * s, kw * 2 - 2 * s, 1.6 * s, light, 0);
       for (let k = -4; k <= 4; k++) box(x + k * 3.1 * s - .4 * s, ky + .2 * s, .8 * s, 1 * s, dark, 0); if (o.tiers) box(x - kw * .7, ky - 5 * s, kw * 1.4, 2.6 * s, hexRgb(o.color || W.gears[i]), .5); });
     handL = [x - 5.5 * s + sh, ky - 1.2 * s + dip]; handR = [x + 5.5 * s + sh, ky - 1.2 * s + dip * (o.alt ? 1 : .4)]; bendL = -1; bendR = 1;
+  } else if (role === 'dj') {             // a booth with two decks and a mixer: one hand rocks the record with every scratch, the other rides the fader
+    const ky = hipY - 1 * s, kw = 13 * s, rock = Math.sin(Math.min(1, hit / .2) * Math.PI * 2) * 2.4 * s * (o.active ? 1 : 0);
+    front.push(() => { box(x - kw, ky, kw * 2, feetY - ky, dark, .3); box(x - kw, ky - 1.5 * s, kw * 2, 2.6 * s, hexRgb(o.color || W.gears[i]), .5); box(x - kw + 1.5 * s, ky + 4 * s, kw * 2 - 3 * s, 1 * s, acc, 0);
+      for (const sd of [-1, 1]) { circ(x + sd * 7.5 * s, ky - 2.2 * s, 4 * s, dark, .3); circ(x + sd * 7.5 * s, ky - 2.2 * s, 1.2 * s, acc, 0); } box(x - 1.6 * s, ky - 3.2 * s, 3.2 * s, 2.6 * s, light, .3); });
+    handL = [x - 7.5 * s + rock, ky - 3.6 * s]; handR = [x + .5 * s, ky - 3.4 * s + (o.active ? Math.sin(hit * 40) * .5 * s : 0)]; bendL = -1; bendR = 1;
   } else if (role === 'drums') {          // kit in front: kick, snare, hat, tom, crash. Sticks rest raised and come down on each hit
     const D = o.drum, ky = feetY - 6 * s, im = t => Math.max(0, 1 - t / .11), kickP = im(D.kick), wob = t => Math.sin(t * 38) * Math.exp(-t * 5) * 1.6 * s;
     const snX = x - 10 * s, snY = feetY - 13 * s, htX = x - 16 * s, htY = feetY - 19 * s, crX = x + 15 * s, crY = feetY - 25 * s, drumC = hexRgb(o.color || W.gears[i]);
@@ -3317,7 +3380,7 @@ function performer(S, o) {
     const mo = o.mouth || 0; if (mo > .05) circ(headX, headY + 2.3 * s, (.7 + mo * 1.3) * s, hexRgb('#3a0f12'), 0);
   }
   if (role === 'drums') { arm(-1, handL[0], handL[1], bendL); arm(1, handR[0], handR[1], bendR); for (const f of front) f(); }
-  else if (role === 'keys') { for (const f of front) f(); arm(-1, handL[0], handL[1], bendL); arm(1, handR[0], handR[1], bendR); }
+  else if (role === 'keys' || role === 'dj') { for (const f of front) f(); arm(-1, handL[0], handL[1], bendL); arm(1, handR[0], handR[1], bendR); }
   else { arm(-1, handL[0], handL[1], bendL); for (const f of front) f(); arm(1, handR[0], handR[1], bendR); }
   const k = o.dim ? .32 : 1;
   for (const p of P) S.put(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], k === 1 ? p[8] : [p[8][0] * k, p[8][1] * k, p[8][2] * k]);
@@ -3393,6 +3456,18 @@ VENUES.lofi = (S, v) => {
   S.cap(188, 60, 188, 40, .8, .8, dark, 0); S.cap(188, 40, 181, 36, .8, .8, dark, 0); S.cap(177, 36, 183, 36, 2.6, 2.6, hexRgb('#c8a04a'), .5); S.beam(180, 37, 176, 62, 2, 16, warm, .22, .6); S.glow(180, 40, 24, warm, .45 + v.kick * .08);
   S.box(-10, 60, 220, 22, hexRgb('#3a2c28')); for (let i = 0; i < 6; i++) S.box(-10, 63 + i * 3, 220, .6, hexRgb('#2e221e')); S.box(36, 63, 128, 14, hexRgb('#5a4a6a'), .2); for (let i = 0; i < 4; i++) S.box(40, 65 + i * 3.2, 120, .8, hexRgb(i % 2 ? '#c88a9a' : '#8aa0c8'), 0, .6);
 };
+// a block party at night: the skyline, a brick wall with the crew's tag sprayed on it, a street lamp, speaker stacks that pump with the kick
+VENUES.hiphop = (S, v) => {
+  const sky = [['#0c1030', '#1a1c4a', '#3a2a5a'], ['#101820', '#1a2c3a', '#2a4a4a'], ['#1a0c20', '#3a1430', '#5a2438']][v.look.variant].map(hexRgb), acc = hexRgb(v.look.accent), warm = hexRgb('#ffd27a'), ink = hexRgb('#3e2018');
+  S.ox = v.cam * .1; sky.forEach((c, i) => S.box(-10, i * 12, 220, 13, c));
+  S.ox = v.cam * .2; [22, 30, 18, 34, 26, 30, 16, 32, 24].forEach((hh, i) => { S.box(-6 + i * 24, 34 - hh, 22, hh, hexRgb(i % 2 ? '#10121c' : '#161a28')); for (let k = 0; k < 6; k++) if ((i * 5 + k * 3 + Math.floor(v.t * .2 + i)) % 5 < 2) S.box(-3 + i * 24 + (k % 3) * 6, 37 - hh + Math.floor(k / 3) * 6, 2, 2.5, warm, 0, .8); });
+  S.ox = v.cam * .45; S.box(-10, 30, 220, 30, hexRgb('#5a3428')); for (let r = 0; r < 6; r++) { S.box(-10, 30 + r * 5, 220, .6, ink); for (let x = (r % 2) * 7; x < 220; x += 14) S.box(x - 10, 30 + r * 5, .6, 5, ink); }
+  for (const [gx, gy, gr, gc] of [[28, 44, 9, '#ff5a8a'], [42, 49, 7, '#58d6ff'], [162, 45, 10, '#ffc828'], [178, 50, 6, '#6ee06e']]) S.circ(gx, gy, gr, hexRgb(gc), .2);
+  const nw = S.names.band.w; S.text('band', 100 - nw / 2, 33, [1, 1, 1], true, .95);
+  S.cap(8, 60, 8, 12, 1, 1, hexRgb('#1a1a20'), 0); S.cap(8, 12, 17, 10, 1, 1, hexRgb('#1a1a20'), 0); S.glow(18, 12, 26, warm, .5); S.beam(18, 11, 26, 62, 2, 20, warm, .12, .7);
+  S.ox = v.cam * .7; for (const sx of [-3, 185]) { S.box(sx, 34, 18, 28, hexRgb('#15151a'), .3); for (const cy of [42, 54]) { S.circ(sx + 9, cy, 4.4 + v.kick * .9, hexRgb('#2a2a32'), .3); S.circ(sx + 9, cy, 1.5, acc, 0); } }
+  S.box(-10, 60, 220, 22, hexRgb('#22222a')); for (let i = 0; i < 5; i++) S.box(-10 + i * 48, 70, 26, 1, hexRgb('#c8c8a0'), 0, .35);
+};
 /** People in front of the stage, as silhouettes: they jump at the club and the arena, sway on the beach, sit at tables in the cellar. */
 function crowd(S, v, genre) {
   S.ox = v.cam * 1.5; const ink = hexRgb(genre === 'reggae' ? '#2a1420' : '#060508');
@@ -3438,6 +3513,7 @@ function drawStage(now) {
     const flip = x < 100 ? 1 : -1, n = info(id); let what;
     if (kind === 'voice') { what = { role: 'voice', grip: false, mouth: n.active ? .45 + n.lvl * .4 : 0 }; singers.push({ id, x, y: P.y }); }
     else if (P.keyboard) what = { role: 'keys' };
+    else if (kind === 'dj') what = { role: 'dj' };
     else if (kind === 'poly') what = { role: 'strings', kind: ins === 'jazz' ? 'jazz' : heavy ? 'pointy' : 'round', flip };
     else if (ins === 'upright') what = { role: 'upright' }; else if (ins === 'horn' || ins === 'sax') what = { role: 'horn' }; else if (ins === 'melodica') what = { role: 'melodica' };
     else if (ins === 'leadgtr' || ins === 'twin') what = { role: 'strings', kind: 'pointy', flip, raise: n.active ? n.lvl : 0 };
@@ -3465,7 +3541,7 @@ function drawStage(now) {
   }
   crowd(S, v, genre); S.ox = 0; S.render(mode === 'editor' ? null : tvView(Math.max(0, pulseNow), t));
 }
-requestAnimationFrame(function stageLoop(now) { requestAnimationFrame(stageLoop); if (conductor.chords.length) drawStage(now); });
+requestAnimationFrame(function stageLoop(now) { requestAnimationFrame(stageLoop); if (conductor.chords.length) drawStage(now); if (mode !== 'editor' && room3 && yaw < -.25) room3.tvFrom(stageCv); });
 
 /* ======================================================================
  * The living room: the app opens on the couch. The room and the person on the couch are drawn procedurally, like the band;
@@ -3473,19 +3549,7 @@ requestAnimationFrame(function stageLoop(now) { requestAnimationFrame(stageLoop)
  * ==================================================================== */
 const couch = $('#couch'), zoomEl = $('#zoom'), roomCv = $('#room'), tvEl = $('#tv'), tvPic = $('#tvPic'), tvNoise = $('#tvNoise'), noiseG = tvNoise.getContext('2d');
 const CHANNELS = Object.keys(GENRES).filter(id => !GENRES[id].test), TV_ASPECT = 104 / 84;
-let mode = 'couch', sceneX = 0, sceneY = 0, channel = 0, staticUntil = 0, thirdTimer = 0, chTimer = 0;
-// The picture is 640 wide and runs from 130 above the original frame to 80 below it (570 tall): a wide screen shows the original 640×360,
-// a tall phone shows the full height and so more of the room around the TV.
-const ROOM_TOP = 130, ROOM_H = 570, ROOM_W = 900;       // the first 640 are the room with the TV; right of it stands the tape rack
-let couchView = 'tv', camT = 0;                        // where we look: at the TV (0) or at the rack (1)
-/** Size the room so it covers the window, keeping the TV and the remote in view (on a tall phone that is the middle slice of the picture). */
-function layoutCouch() {
-  const vw = window.innerWidth, vh = window.innerHeight, S = Math.max(vw / 640, vh / ROOM_H), e = camT * camT * (3 - 2 * camT);
-  const tvX = clamp(vw / 2 - 447 * S, vw - 640 * S, 0), rackX = vw - ROOM_W * S;                   // looking at the TV: as before · at the rack: the right end of the room
-  sceneX = tvX + (rackX - tvX) * e; sceneY = clamp(vh / 2 - (ROOM_TOP + 180) * S, vh - ROOM_H * S, 0);
-  zoomEl.style.width = ROOM_W * S + 'px'; zoomEl.style.height = ROOM_H * S + 'px'; if (mode === 'couch') { zoomEl.style.transition = 'none'; zoomEl.style.transform = `translate(${sceneX}px,${sceneY}px)`; }
-}
-window.addEventListener('resize', layoutCouch); layoutCouch();
+let mode = 'couch', channel = 0, staticUntil = 0, thirdTimer = 0, chTimer = 0;
 /** Which part of the stage the TV shows: a director cutting every two bars between a wide shot, pans and close-ups of whoever is playing. [x, y, w, h] in stage widths/heights. */
 function tvView(pulseNow, t) {
   const two = PPQN * BEATS_PER_BAR * 2, pair = Math.floor(pulseNow / two), k = (pulseNow / two) % 1, cyc = ((pair % 4) + 4) % 4, e = k * k * (3 - 2 * k), jit = Math.sin(t * 2.3) * .004;
@@ -3496,24 +3560,178 @@ function tvView(pulseNow, t) {
   return medium(.16 + e * .12);                                              // keys, singer and drums, drifting right
 }
 /** The living room, built from the same capsules, boxes and glows as the band, at 320×180 art pixels (coordinates are in the 640×360 space of the original picture). */
-let roomGL = null, pressAt = -1e9; try { roomGL = new StageGL(roomCv, ROOM_W / 2, 285, 2, 1800); roomGL.oy = ROOM_TOP; roomGL.levels = 13; roomGL.dither = .45; /* big flat walls: more colours, gentler dither */ } catch (e) { /* no WebGL: the TV still works on a black room */ }
-const POSTERS = [[652, -100, 40, 56, '#3a2a2a', '#e8c84a'], [706, -108, 52, 64, '#2a3a3a', '#e86a8a'], [776, -96, 44, 50, '#3a3a2a', '#58d6ff'], [836, -106, 48, 62, '#2a2a4a', '#e8a04a'], [72, -104, 46, 62, '#2a3a4a', '#e8c84a'], [128, -98, 40, 50, '#4a2a2a', '#e8e2d0'], [356, -110, 34, 46, '#3a2a4a', '#e86a8a'], [520, -106, 50, 66, '#2a2a3a', '#58d6ff'], [582, -112, 44, 58, '#4a3a2a', '#e8a04a'], [150, -6, 86, 92, '#4a2a3a', '#d88a4a'], [74, 52, 26, 56, '#2a2a3a', '#c83a3a'], [196, 98, 30, 46, '#e0a83a', '#3a2a5a'], [556, -6, 30, 44, '#2a3a4a', '#e8e2d0'], [568, 44, 30, 62, '#3a2a2a', '#e86a3a'], [600, -6, 46, 110, '#1e1e2a', '#ff8a2a'], [62, -4, 22, 36, '#c8c0a8', '#5a4a3a'], [88, 0, 34, 44, '#2a3a2a', '#d8d2c0']];
+/* ---------- the living room, in 3D ----------
+   A small ray tracer in a fragment shader, at a low resolution so it keeps the blocky look. The room is a list of boxes and capsules (rebuilt every
+   frame, sent as a little data texture). For every art pixel the shader finds what the eye sees, then asks whether that point can see the TV's screen:
+   that is the TV's light and its shadows. Turning to the tape rack or to the channel guide turns the head (the camera), it does not slide the picture.
+   The TV picture, the channel guide and the tapes are ordinary page elements laid onto their surfaces in perspective. */
+const R3 = { x0: -3.1, x1: 3.1, y0: 0, y1: 2.6, z0: -1.4, z1: 3.2 }, EYE = [0, 1.14, -.15], PITCH = -.15;
+const TV3 = { x: .3, y: 1.17, z: 2.6, hw: .44, hh: .44 / TV_ASPECT }, VCR3 = [.3, .33, 2.37];             // the screen (centre, half size) · the recorder's slot
+const VIEWS = { guide: -1.0, tv: 0, rack: 1.15 };                                                       // how far the head is turned for each view (radians)
+const RACK3 = { x: 2.64, cols: 4, rows: 3, z0: 2.15, z1: .25, y0: 2.0, y1: .1 }, GUIDE3 = { x: -3.05, z0: 1.56, z1: 3.06, y0: 2.3, y1: .5 };
+// A mirror hangs on the left wall beside the guide, at the one spot where, from the couch, the TV appears in it (the screen's image lies as far behind the wall as the screen is in front).
+const MIRROR3 = { z: EYE[2] + (TV3.z - EYE[2]) * (EYE[0] - R3.x0) / (EYE[0] - R3.x0 + TV3.x - R3.x0), y: 1.16, h: .31 };
+const tapePos = i => [RACK3.x + .07, 1.71 - Math.floor(i / RACK3.cols) * .55, 1.845 - (i % RACK3.cols) * .43];   // centre of tape i, standing on its shelf
+let couchView = 'tv', yaw = 0, camZoom = 0, camGo = null, pressAt = -1e9;
+const hex3 = h => hexRgb(h);
+const ROOM_FS = `#version 300 es
+precision highp float; precision highp int; precision highp sampler2D;
+uniform sampler2D uD, uTvTex; uniform int uN; uniform vec2 uRes, uTvScr; uniform vec3 uEye, uF, uR, uU, uTvCol, uLamp, uMin, uMax; uniform vec4 uTv; uniform float uTh, uDay, uGlow;
+out vec4 o; const float BIG = 1e9;
+float bayer(vec2 p){ int b[16] = int[16](0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5); ivec2 i = ivec2(mod(p, 4.)); return (float(b[i.y * 4 + i.x]) + .5) / 16.; }
+float iBox(vec3 ro, vec3 rd, vec3 c, vec3 h, out vec3 n){ vec3 m = 1. / rd, k = abs(m) * h, q = m * (ro - c), t1 = -q - k, t2 = -q + k; float tN = max(max(t1.x, t1.y), t1.z), tF = min(min(t2.x, t2.y), t2.z);
+  if (tN > tF || tN < 0.) return BIG; n = -sign(rd) * step(t1.yzx, t1.xyz) * step(t1.zxy, t1.xyz); return tN; }
+float iCap(vec3 ro, vec3 rd, vec3 pa, vec3 pb, float r){ vec3 ba = pb - pa, oa = ro - pa; float baba = dot(ba, ba), bard = dot(ba, rd), baoa = dot(ba, oa), rdoa = dot(rd, oa), oaoa = dot(oa, oa);
+  float a = baba - bard * bard, b = baba * rdoa - baoa * bard, c = baba * oaoa - baoa * baoa - r * r * baba, h = b * b - a * c;
+  if (h >= 0.) { float t = (-b - sqrt(h)) / a, y = baoa + t * bard; if (y > 0. && y < baba) return t > 0. ? t : BIG;
+    vec3 oc = y <= 0. ? oa : ro - pb; b = dot(rd, oc); c = dot(oc, oc) - r * r; h = b * b - c; if (h > 0.) { t = -b - sqrt(h); return t > 0. ? t : BIG; } }
+  return BIG; }
+float trace(vec3 ro, vec3 rd, out int id, out vec3 n){ float tm = BIG; id = -1; vec3 nn; n = vec3(0);
+  for (int i = 0; i < uN; i++) { vec4 A = texelFetch(uD, ivec2(0, i), 0), B = texelFetch(uD, ivec2(1, i), 0); float t;
+    if (mod(A.w, 10.) < .5) { t = iBox(ro, rd, A.xyz, B.xyz, nn); if (t < tm) { tm = t; id = i; n = nn; } } else { t = iCap(ro, rd, A.xyz, B.xyz, B.w); if (t < tm) { tm = t; id = i; } } }
+  return tm; }
+float lit(vec3 ro, vec3 lp){ vec3 d = lp - ro; float L = length(d); d /= L; d += 1e-5; vec3 nn;                      // 1 if the point can see the light, 0 if something is in the way
+  for (int i = 0; i < uN; i++) { vec4 A = texelFetch(uD, ivec2(0, i), 0); if (A.w >= 10.) continue; vec4 B = texelFetch(uD, ivec2(1, i), 0);
+    float t = A.w < .5 ? iBox(ro, d, A.xyz, B.xyz, nn) : iCap(ro, d, A.xyz, B.xyz, B.w); if (t < L - .04) return 0.; }
+  return 1.; }
+void main(){
+  vec2 px = gl_FragCoord.xy, s = (px / uRes * 2. - 1.) * vec2(uTh * uRes.x / uRes.y, uTh); vec3 ro = uEye, rd = normalize(uF + uR * s.x + uU * s.y) + 1e-5, n, alb, emi, P, col = vec3(0), tint = vec3(1);
+  float us = 0., code = 0., b = bayer(px), b2 = bayer(px.yx + 2.);
+  for (int bounce = 0; bounce < 2; bounce++) {                       // the second round is what a mirror shows
+    int id, mat = 0; float usH = 0., idH; emi = vec3(0);
+    float t = trace(ro, rd, id, n);
+    vec3 tr = (mix(uMin, uMax, step(0., rd)) - ro) / rd; float tw = min(min(tr.x, tr.y), tr.z);                    // where the ray leaves the room
+    if (t < tw) {
+      P = ro + rd * t; vec4 A = texelFetch(uD, ivec2(0, id), 0), B = texelFetch(uD, ivec2(1, id), 0), C = texelFetch(uD, ivec2(2, id), 0), D = texelFetch(uD, ivec2(3, id), 0);
+      alb = C.rgb; usH = D.w; mat = int(C.w + .5); idH = float(id);
+      if (mod(A.w, 10.) > .5) { vec3 ba = B.xyz - A.xyz, pa = P - A.xyz; n = normalize(pa - clamp(dot(pa, ba) / dot(ba, ba), 0., 1.) * ba); }
+      else { vec3 lp = (P - A.xyz) / B.xyz; vec2 uv = abs(n.x) > .5 ? lp.zy : abs(n.y) > .5 ? lp.xz : lp.xy;
+        if (mat == 1) { if (abs(uv.x) < .72 && uv.y > -.35 && uv.y < .78) alb = uv.y > .52 ? D.rgb : vec3(.95, .92, .82); }                                      // a tape: label with a coloured stripe
+        else if (mat == 2) { float slat = step(fract(lp.y * 9.5), .45); alb = mix(mix(vec3(.08, .11, .24), vec3(.05, .07, .15), slat), mix(vec3(1., .94, .77), vec3(.85, .69, .44), slat), uDay); emi = alb * uDay * .55; if (abs(uv.x) > .9 || abs(uv.y) > .94) { alb = vec3(.42, .29, .17); emi = vec3(0); } }   // blinds
+        else if (mat == 3) { if (max(abs(uv.x), abs(uv.y)) < .86) alb = mix(alb, D.rgb, .28); if (length(vec2(uv.x * B.x / B.y + uv.x * B.z / B.y, uv.y - .12)) < .42) alb = D.rgb; if (uv.y < -.62 && uv.y > -.8 && abs(uv.x) < .7) alb = vec3(.91, .89, .82); }   // a poster
+        else if (mat == 4) { emi = texture(uTvTex, vec2(lp.x * .5 + .5, .5 - lp.y * .5)).rgb * .95; alb = vec3(.02); }                                          // the screen, showing the stage
+        else if (mat == 5) emi = alb;                                                                                                                     // something that glows
+        else if (mat == 6) { if (n.y > .5) { vec2 g = vec2(uv.x * 1.5 + 1.5, uv.y * 4. + 3.3); if (uv.y < .5 && fract(g.x) > .25 && fract(g.y) > .3 && g.x > 0. && g.x < 3.) alb = vec3(.42, .42, .46); if (uv.y > .62 && uv.x < -.2) alb = D.rgb; } }   // the remote's buttons
+        else if (mat == 7) { if (n.z < -.5) { alb = max(abs(uv.x), abs(uv.y)) > .9 ? vec3(.18, .19, .21) : vec3(.11, .12, .13); } }                             // the TV's front
+        else if (mat == 8) { if (n.z < -.5 && abs(uv.x) < .82 && abs(uv.y) < .6) alb = vec3(.13, .08, .04); }                                                 // the stand's open shelf
+        else if (mat == 9) { alb = mix(alb, mod(floor(lp.z * 5.5), 2.) < .5 ? vec3(.66, .34, .23) : vec3(.23, .35, .42), step(.5, fract(lp.z * 5.5 + .25)) * .7); }  // the rug
+        else if (mat == 10) { if (max(abs(uv.x), abs(uv.y)) > .93) alb = vec3(.54, .35, .19); }                                                              // a framed board
+      }
+    } else {
+      t = tw; P = ro + rd * t; n = tr.x <= tr.y && tr.x <= tr.z ? vec3(-sign(rd.x), 0, 0) : tr.y <= tr.z ? vec3(0, -sign(rd.y), 0) : vec3(0, 0, -sign(rd.z)); idH = -2. - dot(abs(n), vec3(1., 2., 3.)) - step(0., n.x + n.y + n.z) * 3.;
+      if (n.y > .5) { alb = vec3(.23, .15, .08); float row = floor(P.z / .26); if (fract(P.z / .26) < .05 || fract((P.x + row * .37) / 1.3) < .012) alb *= .76; }                 // floorboards
+      else if (n.y < -.5) alb = vec3(.3, .24, .17);
+      else { float hh = abs(n.x) > .5 ? P.z : P.x; alb = vec3(.69, .56, .38); if (fract(hh / .27) < .06) alb = vec3(.58, .46, .31); if (P.y < .14) alb = vec3(.43, .32, .2); if (P.y > 2.47) alb = vec3(.48, .37, .24); }
+    }
+    if (bounce == 0) { us = usH; bool round = idH >= 0. && mod(texelFetch(uD, ivec2(0, int(idH)), 0).w, 10.) > .5;                       // which object, which of its faces
+      float face = round ? 0. : (abs(n.x) > .5 ? 0. : abs(n.y) > .5 ? 1. : 2.) + (n.x + n.y + n.z > 0. ? 3. : 0.); code = us * 128. + (idH < 0. ? 15. : mod(idH, 15.)) * 8. + face; }
+    if (mat == 11 && bounce == 0) { ro = P + n * .01; rd = reflect(rd, n) + 1e-5; tint = vec3(.8, .86, .88); continue; }                               // a mirror: look again from there
+    // light: daylight and the ceiling lamp by day, a little blue at night, and always the TV, which casts the shadows. Faces looking up are brighter than
+    // faces looking sideways, so the shape of every box reads.
+    vec3 Pn = P + n * .012;
+    vec3 light = mix(vec3(.15, .16, .23) + uTvCol * .1 + usH * vec3(.1, .09, .08), vec3(.5, .47, .42), uDay) * (.82 + .26 * n.y + .1 * n.x) + uDay * vec3(.26, .23, .17) * max(dot(n, normalize(vec3(-.5, .55, .5))), 0.);
+    vec3 Ll = uLamp - P; float dl = dot(Ll, Ll); light += uDay * vec3(.5, .4, .25) * max(dot(n, Ll * inversesqrt(dl)), 0.) / (1. + dl * .35);
+    vec3 lp = uTv.xyz + vec3((b - .5) * .14, (b2 - .5) * .1, 0.), Lt = lp - P; float dt = dot(Lt, Lt); Lt *= inversesqrt(dt);                               // a different point of the screen for every pixel: dithered soft shadows
+    float nl = max(dot(n, Lt), 0.) * clamp(Lt.z * 1.6, 0., 1.); if (nl > 0.) light += uTvCol * uTv.w * nl * lit(Pn, lp) * 3.4 / (1. + dt * .7);
+    col = tint * (alb * light + emi); break;
+  }
+  vec2 gd = (px - uTvScr) / uRes.y; col += uTvCol * uGlow * exp(-dot(gd, gd) * 5.5);                                                                  // the glow of the tube in the air
+  // ink outlines, as in the flat drawings: a dark line wherever one thing ends and another begins, a fainter one along the edges of a box, the darkest round ourselves
+  o = vec4(clamp(col, 0., 1.), code / 255.);
+}`;
+// Second pass: ink outlines exactly one art pixel wide, as in the flat drawings: black round ourselves, dark where one thing ends and another begins,
+// fainter along the edges of a box. Then the colours are cut down to a few levels with a dither.
+const ROOM_INK = `#version 300 es
+precision highp float; precision highp int; uniform sampler2D uC; uniform float uLevels, uDither; out vec4 o;
+float bayer(vec2 p){ int b[16] = int[16](0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5); ivec2 i = ivec2(mod(p, 4.)); return (float(b[i.y * 4 + i.x]) + .5) / 16.; }
+void main(){ ivec2 p = ivec2(gl_FragCoord.xy); vec4 c = texelFetch(uC, p, 0); int a = int(c.a * 255. + .5), l = int(texelFetch(uC, max(p - ivec2(1, 0), ivec2(0)), 0).a * 255. + .5), d = int(texelFetch(uC, max(p - ivec2(0, 1), ivec2(0)), 0).a * 255. + .5);
+  vec3 col = c.rgb; if ((a >= 128) != (l >= 128) || (a >= 128) != (d >= 128)) col = vec3(.05, .04, .07); else if ((a >> 3) != (l >> 3) || (a >> 3) != (d >> 3)) col *= .34; else if (a != l || a != d) col *= .66;
+  col = floor(col * uLevels + (bayer(gl_FragCoord.xy) - .5) * uDither + .5) / uLevels; o = vec4(col, 1.); }`;
+class Room3D {
+  constructor(canvas) {
+    const gl = this.gl = canvas.getContext('webgl2', { alpha: false, antialias: false, depth: false, stencil: false }); if (!gl) throw new Error('no webgl2');
+    this.canvas = canvas; this.max = 160; this.data = new Float32Array(this.max * 16); this.n = 0;
+    const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+    const VS = '#version 300 es\nvoid main(){ vec2 v = vec2(gl_VertexID == 1 ? 3. : -1., gl_VertexID == 2 ? 3. : -1.); gl_Position = vec4(v, 0., 1.); }', link = fs => { const q = gl.createProgram(); gl.attachShader(q, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(q, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(q); if (!gl.getProgramParameter(q, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(q)); return q; };
+    const p = this.prog = link(ROOM_FS), p2 = this.ink = link(ROOM_INK); this.u2 = { uC: gl.getUniformLocation(p2, 'uC'), uLevels: gl.getUniformLocation(p2, 'uLevels'), uDither: gl.getUniformLocation(p2, 'uDither') };
+    this.fbo = gl.createFramebuffer(); this.pic = gl.createTexture(); this.picW = this.picH = 0;
+    this.u = {}; for (const k of ['uD', 'uN', 'uRes', 'uTvScr', 'uEye', 'uF', 'uR', 'uU', 'uTvCol', 'uLamp', 'uMin', 'uMax', 'uTv', 'uTh', 'uDay', 'uGlow', 'uTvTex']) this.u[k] = gl.getUniformLocation(p, k);
+    this.tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, this.tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, 4, this.max, 0, gl.RGBA, gl.FLOAT, null);
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    this.tv = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, this.tv); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([8, 8, 10, 255]));
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    this.vao = gl.createVertexArray();
+  }
+  /** Copy what the TV is showing (the stage canvas) so that the screen itself, seen in the mirror, shows it too. */
+  tvFrom(canvas) { const gl = this.gl; if (!canvas.width || !canvas.height) return; gl.bindTexture(gl.TEXTURE_2D, this.tv); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas); }
+  begin() { this.n = 0; }
+  /** A box: centre, half size, colour. mat: pattern (see the shader) · col2: second colour of the pattern · us: part of our own body (outlined) · dark: casts no shadow. */
+  box(c, h, col, mat = 0, col2 = null, us = 0, dark = 0) { if (this.n >= this.max) return; const d = this.data, o = this.n++ * 16; d[o] = c[0]; d[o + 1] = c[1]; d[o + 2] = c[2]; d[o + 3] = dark ? 10 : 0; d[o + 4] = h[0]; d[o + 5] = h[1]; d[o + 6] = h[2]; d[o + 7] = 0;
+    d[o + 8] = col[0]; d[o + 9] = col[1]; d[o + 10] = col[2]; d[o + 11] = mat; d[o + 12] = col2 ? col2[0] : 0; d[o + 13] = col2 ? col2[1] : 0; d[o + 14] = col2 ? col2[2] : 0; d[o + 15] = us; }
+  /** A capsule from a to b with radius r. */
+  cap(a, b, r, col, us = 0, dark = 0) { if (this.n >= this.max) return; const d = this.data, o = this.n++ * 16; d[o] = a[0]; d[o + 1] = a[1]; d[o + 2] = a[2]; d[o + 3] = dark ? 11 : 1; d[o + 4] = b[0]; d[o + 5] = b[1]; d[o + 6] = b[2] + (a[0] === b[0] && a[1] === b[1] && a[2] === b[2] ? .001 : 0); d[o + 7] = r;
+    d[o + 8] = col[0]; d[o + 9] = col[1]; d[o + 10] = col[2]; d[o + 11] = 0; d[o + 12] = d[o + 13] = d[o + 14] = 0; d[o + 15] = us; }
+  render(cam, U) {
+    const gl = this.gl, u = this.u, cv = this.canvas;
+    if (this.picW !== cv.width || this.picH !== cv.height) { this.picW = cv.width; this.picH = cv.height; gl.bindTexture(gl.TEXTURE_2D, this.pic); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, cv.width, cv.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.pic, 0); }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo); gl.viewport(0, 0, cv.width, cv.height); gl.useProgram(this.prog); gl.bindVertexArray(this.vao);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.tex); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 4, this.n, gl.RGBA, gl.FLOAT, this.data.subarray(0, this.n * 16));
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.tv); gl.uniform1i(u.uTvTex, 1); gl.activeTexture(gl.TEXTURE0);
+    gl.uniform1i(u.uD, 0); gl.uniform1i(u.uN, this.n); gl.uniform2f(u.uRes, cv.width, cv.height); gl.uniform3fv(u.uEye, cam.eye); gl.uniform3fv(u.uF, cam.f); gl.uniform3fv(u.uR, cam.r); gl.uniform3fv(u.uU, cam.u); gl.uniform1f(u.uTh, cam.th);
+    gl.uniform3f(u.uMin, R3.x0, R3.y0, R3.z0); gl.uniform3f(u.uMax, R3.x1, R3.y1, R3.z1); gl.uniform3fv(u.uTvCol, U.tvCol); gl.uniform4f(u.uTv, TV3.x, TV3.y, TV3.z - .14, U.tvA); gl.uniform3f(u.uLamp, -.8, 2.05, 1.4);
+    gl.uniform2f(u.uTvScr, U.tvScr[0], U.tvScr[1]); gl.uniform1f(u.uDay, U.day); gl.uniform1f(u.uGlow, U.glow);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.useProgram(this.ink); gl.bindTexture(gl.TEXTURE_2D, this.pic); gl.uniform1i(this.u2.uC, 0); gl.uniform1f(this.u2.uLevels, 14); gl.uniform1f(this.u2.uDither, .28 + .22 * U.day); gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+}
+let roomPx = 0, roomTick = 0, slowN = 0;
+let room3 = null; try { room3 = new Room3D(roomCv); } catch (e) { console.warn('3D room unavailable:', e); /* no WebGL 2: the TV, the guide and the tapes still work as flat page elements */ }
+// ---- the camera, and laying page elements onto surfaces of the room
+const cam = { eye: [...EYE], f: [0, 0, 1], r: [1, 0, 0], u: [0, 1, 0], th: .6, vw: 1, vh: 1 };
+function setCam(eye, yw, pitch) { const cy = Math.cos(yw), sy = Math.sin(yw), cp = Math.cos(pitch), sp = Math.sin(pitch); cam.eye = eye; cam.f = [sy * cp, sp, cy * cp]; cam.r = [cy, 0, -sy]; cam.u = [-sy * sp, cp, -cy * sp];
+  cam.vw = window.innerWidth; cam.vh = window.innerHeight; const asp = cam.vw / cam.vh; cam.th = Math.max(.6, .36 / asp); }
+/** Where a point of the room is on the screen, in CSS pixels; null when it is behind us. */
+function project(p) { const v = [p[0] - cam.eye[0], p[1] - cam.eye[1], p[2] - cam.eye[2]], z = v[0] * cam.f[0] + v[1] * cam.f[1] + v[2] * cam.f[2]; if (z < .05) return null;
+  const x = (v[0] * cam.r[0] + v[1] * cam.r[1] + v[2] * cam.r[2]) / z, y = (v[0] * cam.u[0] + v[1] * cam.u[1] + v[2] * cam.u[2]) / z, asp = cam.vw / cam.vh; return [(x / (cam.th * asp) * .5 + .5) * cam.vw, (.5 - y / cam.th * .5) * cam.vh]; }
+/** Lay an element (w × h CSS pixels, top-left at 0,0) onto the four corners of a surface: top-left, top-right, bottom-right, bottom-left. */
+function layOn(el, w, h, corners) {
+  const q = corners.map(project); if (q.some(p => !p)) { el.style.visibility = 'hidden'; return; }
+  const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = q, dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3, dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3, den = dx1 * dy2 - dx2 * dy1;
+  const g = (dx3 * dy2 - dx2 * dy3) / den, k = (dx1 * dy3 - dx3 * dy1) / den, a = x1 - x0 + g * x1, b = x3 - x0 + k * x3, d = y1 - y0 + g * y1, e = y3 - y0 + k * y3;
+  el.style.visibility = ''; el.style.transform = `matrix3d(${a / w},${d / w},0,${g / w},${b / h},${e / h},0,${k / h},0,0,1,0,${x0},${y0},0,1)`;
+}
+/** Put a button over a box of the room (its outline on screen). */
+function hotspot(el, pts, pad = 0) { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const p of pts) { const q = project(p); if (!q) { el.style.display = 'none'; return; } x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); }
+  if (x1 < 0 || y1 < 0 || x0 > cam.vw || y0 > cam.vh) { el.style.display = 'none'; return; } el.style.display = ''; el.style.left = x0 - pad + 'px'; el.style.top = y0 - pad + 'px'; el.style.width = x1 - x0 + pad * 2 + 'px'; el.style.height = y1 - y0 + pad * 2 + 'px'; }
+const corners8 = (c, h) => [-1, 1].flatMap(a => [-1, 1].flatMap(b => [-1, 1].map(d => [c[0] + a * h[0], c[1] + b * h[1], c[2] + d * h[2]])));
+const TV_W = 260, TV_H = 210, RACK_W = 380, RACK_H = 380, GUIDE_W = 300, GUIDE_H = 360;
+function sizeRoom() { if (mode === 'editor') return; const vw = window.innerWidth, vh = window.innerHeight, px = Math.max(roomPx, vw < 600 ? 3 : Math.max(2, Math.round(vh / 180))); roomPx = px; roomCv.width = Math.ceil(vw / px); roomCv.height = Math.ceil(vh / px); camKey = ''; }
+window.addEventListener('orientationchange', () => { roomPx = 0; });
+window.addEventListener('resize', sizeRoom);
 // day or night in the room: tap the blinds. Remembered for next time.
 let night = false, nightAmt = 0; try { night = localStorage.getItem('patchband-night') === '1'; nightAmt = night ? 1 : 0; } catch (e) { /* no storage: start by day */ }
 for (const b of document.querySelectorAll('.shade')) b.onclick = () => { if (mode !== 'couch') return; night = !night; try { localStorage.setItem('patchband-night', night ? '1' : '0'); } catch (e) { /* fine */ } for (const x of document.querySelectorAll('.shade')) x.setAttribute('aria-pressed', night); };
 // ---- tapes: saved in the browser (kept between visits where the browser allows it), twelve to a rack
-const RACK = { x: 696, y: 44, w: 190, h: 192, cols: 4, rows: 3 }, tapeXY = i => [RACK.x + 13 + (i % RACK.cols) * 43, RACK.y + 14 + Math.floor(i / RACK.cols) * 62];
 let tapes = []; try { tapes = JSON.parse(localStorage.getItem('patchband-tapes') || '[]').filter(T => T && T.v === 1 && GENRES[T.genre]); } catch (e) { tapes = []; }
 const storeTapes = () => { try { localStorage.setItem('patchband-tapes', JSON.stringify(tapes)); return true; } catch (e) { return false; } };
-let tapeSel = -1, tapeBefore = null, tapeIn = null, recAt = -1e9, swipedAt = -1e9, sayTimer = 0;
-const rackEl = $('#rack'), cardEl = $('#tapeCard'), sayEl = $('#couchSay');
+let tapeSel = -1, tapeBefore = null, tapeIn = null, recAt = -1e9, swipedAt = -1e9, sayTimer = 0, camKey = '';
+const rackEl = $('#rack'), cardEl = $('#tapeCard'), sayEl = $('#couchSay'), guideEl = $('#guide');
 function say(text) { sayEl.textContent = text; sayEl.classList.add('on'); clearTimeout(sayTimer); sayTimer = setTimeout(() => sayEl.classList.remove('on'), 4200); }
 function renderRack() {
-  while (rackEl.children.length < RACK.cols * RACK.rows) { const i = rackEl.children.length, b = document.createElement('button'), [x, y] = tapeXY(i); b.className = 'tape';
-    b.style.left = (x - 4) / ROOM_W * 100 + '%'; b.style.top = (ROOM_TOP + y) / ROOM_H * 100 + '%'; b.onclick = () => pickTape(i); rackEl.appendChild(b); }
+  while (rackEl.children.length < RACK3.cols * RACK3.rows) { const i = rackEl.children.length, b = document.createElement('button'), [, y, z] = tapePos(i); b.className = 'tape';
+    b.style.left = ((RACK3.z0 - z) / (RACK3.z0 - RACK3.z1) * 100 - 6.5) + '%'; b.style.top = ((RACK3.y0 - y) / (RACK3.y0 - RACK3.y1) * 100 - 9.5) + '%'; b.onclick = () => pickTape(i); rackEl.appendChild(b); }
   [...rackEl.children].forEach((b, i) => { const T = tapes[i]; b.hidden = !T; if (T) b.setAttribute('aria-label', `Tape ${i + 1}: ${T.look.name}, “${T.look.title}”, ${GENRES[T.genre].name}`); });
 }
-function setView(v) { if (v === couchView || mode !== 'couch') return; couchView = v; if (v === 'tv' && tapeSel >= 0) dropTape(true); $('#toRack').hidden = v !== 'tv'; $('#toTv').hidden = v === 'tv'; }
+/** The channel guide on the left wall: every genre, tap one to switch to it. */
+function renderGuide() {
+  if (!guideEl.children.length) { const h = document.createElement('h3'); h.textContent = 'PTV · CHANNELS'; guideEl.appendChild(h);
+    CHANNELS.forEach((id, i) => { const b = document.createElement('button'); b.innerHTML = `<i>${String(i + 1).padStart(2, '0')}</i>${GENRES[id].name}`; b.onclick = () => { if (mode === 'couch' && !tapeIn) tune(i); }; guideEl.appendChild(b); }); }
+  [...guideEl.querySelectorAll('button')].forEach((b, i) => b.setAttribute('aria-current', !song.tape && i === channel));
+}
+function setView(v) { if (v === couchView || mode !== 'couch') return; couchView = v; if (v !== 'rack' && tapeSel >= 0) dropTape(true); navShow(); }
+function navShow() { $('#toGuide').hidden = couchView !== 'tv'; $('#toRack').hidden = couchView !== 'tv'; const t = $('#toTv'); t.hidden = couchView === 'tv'; t.textContent = couchView === 'guide' ? 'TV ›' : '‹ TV'; t.classList.toggle('right', couchView === 'guide'); }
 /** Put the pulled-out tape back. restore: go back to the song that was on before. */
 function dropTape(restore) { if (tapeSel < 0) return; tapeSel = -1; cardEl.hidden = true; if (restore && tapeBefore) applyTape(tapeBefore); tapeBefore = null; }
 /** First tap on a tape: pull it out, show its label and play its chorus. A second tap puts it in the recorder. */
@@ -3523,109 +3741,122 @@ async function pickTape(i) {
   const T = tapes[i]; applyTape(T); const ch = T.form.sections.findIndex(s => s.kind === 'chorus'); seekBar(T.form.starts[Math.max(0, ch)]);
   tvTape(); tvTitle(); cardEl.hidden = false; cardEl.style.setProperty('--tc', T.look.accent); const L = cardEl.querySelector('.tc-label'); L.children[0].textContent = GENRES[T.genre].name; L.children[1].textContent = T.look.name; L.children[2].textContent = '“' + T.look.title + '”';
 }
-/** The tape goes to the recorder: we look back at the TV, the hand carries it over and pushes it in, snow, and the song starts from the top. */
-function insertTape() { if (tapeSel < 0 || tapeIn) return; tapeIn = { t0: performance.now(), T: tapes[tapeSel], done: false }; tapeSel = -1; tapeBefore = null; cardEl.hidden = true; couchView = 'tv'; $('#toRack').hidden = false; $('#toTv').hidden = true; }
+/** The tape goes to the recorder: we turn back to the TV, get up and lean over the table, push it in, snow, and the song starts from the top while we sit back down. */
+function insertTape() { if (tapeSel < 0 || tapeIn) return; tapeIn = { t0: performance.now(), T: tapes[tapeSel], done: false }; tapeSel = -1; tapeBefore = null; cardEl.hidden = true; couchView = 'tv'; navShow(); }
 $('#tapePlay').onclick = insertTape;
 $('#tapeErase').onclick = () => { if (tapeSel < 0) return; const T = tapes[tapeSel]; tapes.splice(tapeSel, 1); storeTapes(); dropTape(true); renderRack(); say(`Erased “${T.look.title}”.`); };
-$('#toRack').onclick = () => setView('rack'); $('#toTv').onclick = () => setView('tv');
+$('#toRack').onclick = () => setView('rack'); $('#toGuide').onclick = () => setView('guide'); $('#toTv').onclick = () => setView('tv');
 // the recorder: save what is on now. Saving the same song again replaces its tape.
 $('#vcrBtn').onclick = async () => {
   if (mode !== 'couch' || tapeIn) return; if (!playing) await start();
   const T = makeTape(), at = tapes.findIndex(x => x.id === T.id);
-  if (at < 0 && tapes.length >= RACK.cols * RACK.rows) { say('The rack is full. Erase a tape first: swipe left, pull one out, Erase.'); return; }
+  if (at < 0 && tapes.length >= RACK3.cols * RACK3.rows) { say('The rack is full. Erase a tape first: look right, pull one out, Erase.'); return; }
   if (at >= 0) tapes[at] = T; else tapes.push(T);
   const kept = storeTapes(); recAt = performance.now(); renderRack();
   say(`Recorded “${T.look.title}” by ${T.look.name}.` + (kept ? ' Swipe left for your tapes.' : ' This browser will not keep it after you close the page.'));
 };
-// swipe left to look at the rack, right to look back at the TV
-{ let down = null;
+// swipe to turn the head: left towards the tapes, right towards the channel guide
+{ let down = null; const order = ['guide', 'tv', 'rack'];
   couch.addEventListener('pointerdown', e => { down = mode === 'couch' ? { x: e.clientX, y: e.clientY, id: e.pointerId } : null; });
-  couch.addEventListener('pointerup', e => { const d = down; down = null; if (!d || e.pointerId !== d.id) return; const dx = e.clientX - d.x, dy = e.clientY - d.y; if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) { swipedAt = performance.now(); setView(dx < 0 ? 'rack' : 'tv'); } });
+  couch.addEventListener('pointerup', e => { const d = down; down = null; if (!d || e.pointerId !== d.id) return; const dx = e.clientX - d.x, dy = e.clientY - d.y; if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) { swipedAt = performance.now(); setView(order[clamp(order.indexOf(couchView) + (dx < 0 ? 1 : -1), 0, 2)]); } });
   couch.addEventListener('click', e => { if (performance.now() - swipedAt < 350) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);        // a swipe is not a tap on whatever was under the finger
 }
 // a tap anywhere beside the pulled-out tape puts it back (buttons keep doing their own thing)
 couch.addEventListener('click', e => { if (tapeSel >= 0 && mode === 'couch' && !e.target.closest('#tapeCard, button')) { dropTape(true); say('Tape put back.'); } });
 renderRack();
+const POSTERS = [  // on the wall with the TV: [x, y, half width, half height, colours]; then the side walls
+  [1.45, 1.75, .26, .34, '#4a2a3a', '#e8a04a'], [2.1, 1.5, .2, .27, '#2a3a4a', '#e8c84a'], [2.55, 1.95, .22, .3, '#3a2a4a', '#e86a8a'], [1.3, 1.05, .16, .22, '#4a3a2a', '#58d6ff'], [-.52, 2.05, .17, .22, '#2a2a3a', '#e8e2d0'], [-1.95, 2.25, .18, .16, '#4a2a2a', '#e8c84a']];
+const mix3 = (p, q, k) => [p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k, p[2] + (q[2] - p[2]) * k], sstep = (lo, hi, x) => { const u = clamp((x - lo) / (hi - lo), 0, 1); return u * u * (3 - 2 * u); };
 function drawRoom(now) {
-  if (now < staticUntil) { const d = noiseG.createImageData(52, 42), px = d.data; for (let k = 0; k < px.length; k += 4) { const v = Math.random() * 255; px[k] = px[k + 1] = px[k + 2] = v; px[k + 3] = 255; } noiseG.putImageData(d, 0, 0); tvNoise.hidden = false; }   // between channels: snow
+  if (now < staticUntil) { const d = noiseG.createImageData(52, 42), px = d.data; for (let k = 0; k < px.length; k += 4) { const v = Math.random() * 255; px[k] = px[k + 1] = px[k + 2] = v; px[k + 3] = 255; } noiseG.putImageData(d, 0, 0); tvNoise.hidden = false; }
   else if (!tvNoise.hidden) tvNoise.hidden = true;
-  const camTo = couchView === 'rack' ? 1 : 0; if (Math.abs(camTo - camT) > .002) { camT += (camTo - camT) * .1; layoutCouch(); } else if (camT !== camTo) { camT = camTo; layoutCouch(); }
-  if (!roomGL || !song.look) return;
-  const R = roomGL, c = hexRgb, t = now / 1000, live = transport.running && playing, frameNow = bay.frame - viewAhead(), beat = (transport.position - latency()) / PPQN, cam = Math.sin(t * .4) * 2.5, breath = Math.sin(t * 1.15);
+  if (!song.look) return;
+  const c = hex3, t = now / 1000, live = transport.running && playing, frameNow = bay.frame - viewAhead(), beat = (transport.position - latency()) / PPQN, breath = Math.sin(t * 1.15);
   let kick = 9; const dm = band.drums; for (let i = dm.events.length - 1; i >= 0; i--) { const e = dm.events[i]; if (e.f <= frameNow && e.lane === 0) { kick = (frameNow - e.f) * transport.step; break; } }
-  const thump = live ? Math.max(0, 1 - kick / .2) : 0, acc = c(song.look.accent), wood = c('#8a5c30');
-  nightAmt += ((night ? 1 : 0) - nightAmt) * .07; const N = nightAmt, day = 1 - N, mixc = (p, q) => [p[0] + (q[0] - p[0]) * N, p[1] + (q[1] - p[1]) * N, p[2] + (q[2] - p[2]) * N], flick = .86 + .14 * Math.sin(t * 7.3) * Math.sin(t * 3.1 + 1);
-  // the back wall: wooden panelling, two windows with blinds letting the afternoon in, posters
-  R.ox = cam * .15; R.box(-20, -140, 940, 396, c('#b08e62')); for (let x = -8; x < 920; x += 27) R.box(x, -140, 1.6, 396, c('#94764e'), 0, .7); R.box(-20, 236, 940, 16, c('#6e5234'));
-  R.box(-20, -140, 940, 22, c('#4a3a28')); R.box(-20, -118, 940, 5, c('#7a5e3e')); R.cap(200, -118, 200, -92, .9, .9, c('#2a2018'), 0); R.cap(186, -86, 214, -86, 9, 9, c('#d8b070'), .5); R.glow(200, -78, 70, c('#ffcf80'), .25 * day);     // ceiling, and a lamp hanging from it
-  for (const [wx, ww] of [[-14, 66], [240, 100]]) { R.box(wx - 5, -56, ww + 10, 162, c('#6a4a2c'), .3); R.box(wx, -52, ww, 152, mixc(c('#fff0c4'), c('#141d3c'))); for (let i = 0; i < 19; i++) R.box(wx, -48 + i * 7.7, ww, 3.4, mixc(c('#d9b070'), c('#0c1226'))); R.box(wx - 8, 104, ww + 16, 6, c('#8a6238'), .3); R.glow(wx + ww / 2, 46, 120, c('#ffcf80'), .2 * day); if (N > .02) R.glow(wx + ww / 2, 20, 70, c('#8aa0e0'), .1 * N); }
-  POSTERS.forEach(([x, y, w, hh, a, b], i) => { R.box(x, y, w, hh, c(a), .2); R.box(x + 3, y + 3, w - 6, hh - 12, c(b), 0, .28); R.circ(x + w / 2, y + hh * .42, Math.min(w, hh) * .22, c(b), .6); R.box(x + 4, y + hh - 8, w - 8, 3, c('#e8e2d0'), 0, .7); if (i % 2) R.cap(x + w * .3, y + hh * .72, x + w * .7, y + hh * .72, 3, 3, c(b), .4); });
-  R.beam(290, 0, 220, 250, 40, 120, c('#ffd9a0'), .07 * day, .7);
-  // the floor and a rug
-  R.ox = cam * .3; R.box(-20, 250, 940, 200, c('#3a2614')); for (let i = 0; i < 6; i++) R.box(-20, 262 + i * 18, 940, 1.4, c('#2c1c0e'));
-  R.box(196, 252, 190, 74, c('#7a6848'), .2); for (let i = 0; i < 5; i++) R.box(204, 260 + i * 13, 174, 3, c(i % 2 ? '#a8563a' : '#3a5a6a'), 0, .7);
-  // the TV on its stand, a video recorder underneath. The screen itself is the stage canvas, laid over the dark hole.
-  R.ox = 0; R.box(350, 166, 220, 92, c('#6e4424'), .4); R.box(346, 162, 228, 8, c('#8a5a30'), .3); R.box(364, 180, 192, 50, c('#22140a')); R.box(364, 228, 192, 4, c('#8a5a30'), .3);
-  R.box(410, 190, 96, 24, c('#1e1e22'), .4); R.box(416, 197, 36, 7, c('#08080a')); R.box(464, 198, 16, 5, c('#3cff7a')); R.glow(472, 200, 12, c('#3cff7a'), .45); R.box(488, 198, 12, 5, c('#3a3a40'));
-  R.cap(444, 22, 396, -30, 2.4, 1.8, c('#9a9aa2'), .6); R.cap(450, 22, 498, -30, 2.4, 1.8, c('#9a9aa2'), .6); R.cap(438, 22, 456, 22, 8, 8, c('#2a2a2e'), .6);
-  R.box(351, 21, 192, 146, c('#2e3036'), .5); R.box(361, 29, 172, 125, c('#1c1e22'), .3); R.box(381, 34, 145, 117, c('#060608')); R.box(356, 157, 182, 8, c('#18191c')); R.circ(526, 161, 2.2, c('#c83a2a'), 0);
-  // the coffee table and what has piled up on it: tapes, cans, a magazine, a bag of crisps
-  R.ox = cam * .6; R.box(132, 240, 12, 66, c('#5a3a1e')); R.box(420, 240, 12, 58, c('#5a3a1e')); R.box(112, 214, 344, 28, wood, .4); R.box(112, 214, 344, 6, c('#a8743e'));
-  R.box(84, 205, 78, 9, c('#c8c0a8'), .2); R.box(92, 200, 60, 6, c('#a83a3a'), .2); R.box(306, 184, 66, 15, c('#e8e2d0'), .3); R.box(306, 196, 66, 5, c('#26262c')); R.box(318, 199, 58, 15, c('#33343a'), .3); R.box(324, 203, 28, 6, c('#d8d2c0'));
-  R.box(244, 202, 60, 13, c('#2a2c34'), .3); R.box(250, 205, 30, 6, c('#c8ccd2')); R.box(376, 202, 44, 12, c('#3a5a8a'), .3); R.box(380, 198, 40, 6, c('#d8d2c0'), .2);
-  for (const cx of [166, 232]) { R.cap(cx, 208, cx, 184, 8.5, 8.5, c('#c8ccd2'), .7); R.box(cx - 8.5, 190, 17, 9, c('#c83a2a')); R.cap(cx - 4, 177, cx + 4, 177, 2, 2, c('#8a8e94'), .3); }
-  R.cap(186, 206, 200, 196, 11, 8, c('#e8a030'), .6); R.box(270, 216, 46, 5, c('#e0c040'), .2);
-  // armchairs either side
-  R.ox = cam * 1.1; for (const [ax, sd] of [[18, 1], [622, -1]]) { R.cap(ax, 480, ax + sd * 8, 228, 66, 50, c('#5e4428'), .5); for (let k = -2; k <= 2; k++) R.cap(ax + k * 17, 470, ax + sd * 8 + k * 13, 236, 2, 1.6, c('#4a341e'), 0, .8); }
-  // the tape rack, right of the TV: three shelves, a tape for every song you have recorded
-  R.ox = cam * .5; { const K = RACK; R.box(K.x - 7, K.y - 7, K.w + 14, K.h + 14, c('#6e4424'), .4); R.box(K.x, K.y, K.w, K.h, c('#22140a')); R.box(K.x - 11, K.y - 11, K.w + 22, 6, c('#8a5a30'), .3);
-    for (let r = 0; r < K.rows; r++) R.box(K.x, K.y + 60 + r * 62, K.w, 5, c('#8a5a30'), .3);
-    R.cap(K.x + 30, K.y - 12, K.x + 30, K.y - 30, 9, 7, c('#b5653a'), .5); for (let k = 0; k < 5; k++) { const an = -2.4 + k * .42 + Math.sin(t * .8 + k) * .04; R.cap(K.x + 30, K.y - 32, K.x + 30 + Math.cos(an) * 20, K.y - 32 + Math.sin(an) * 24, 3, 1, c(k % 2 ? '#3a8a5a' : '#2e7048'), .5); }
-    tapes.forEach((T, i) => { const [x, y0] = tapeXY(i), out = i === tapeSel, y = y0 - (out ? 7 : 0), col = c(T.look.accent);
-      if (out) R.glow(x + 15, y + 23, 34, col, .5); R.box(x, y, 30, 46, c('#17171b'), .35); R.box(x + 4, y + 5, 22, 27, c('#f3ead2')); R.box(x + 4, y + 5, 22, 6, col); R.box(x + 7, y + 15, 16, 2, c('#3a3a42'), 0, .7); R.box(x + 7, y + 20, 12, 2, c('#3a3a42'), 0, .5); R.box(x + 4, y + 36, 22, 5, c('#2e2e36')); });
+  const thump = live ? Math.max(0, 1 - kick / .2) : 0, acc = c(song.look.accent);
+  const dt = Math.min(.1, (now - (drawRoom.last || now)) / 1000); drawRoom.last = now;
+  nightAmt += ((night ? 1 : 0) - nightAmt) * (1 - Math.exp(-dt * 4)); const N = nightAmt, flick = .86 + .14 * Math.sin(t * 7.3) * Math.sin(t * 3.1 + 1);
+  // ---- where the head is: turned to a view; flying into the TV; or up from the couch with a tape
+  const yawTo = VIEWS[couchView]; yaw += (yawTo - yaw) * (1 - Math.exp(-dt * 6.5)); if (Math.abs(yawTo - yaw) < .001) yaw = yawTo;
+  if (camGo) { const k = clamp((now - camGo.t0) / camGo.dur, 0, 1); camZoom = camGo.from + (camGo.to - camGo.from) * (camGo.to > camGo.from ? k * k * k : 1 - Math.pow(1 - k, 3)); if (k >= 1) { const done = camGo.done; camGo = null; if (done) done(); } }
+  let up = 0, reach = 0, slide = 0;
+  if (tapeIn) { if (window.__couch.hold != null) tapeIn.t0 = now - window.__couch.hold * 1000;      // (tests can freeze the move at a moment)
+    const p = (now - tapeIn.t0) / 1000; up = sstep(.35, 1.15, p) - sstep(2.0, 2.8, p); reach = sstep(1.0, 1.4, p) - sstep(1.75, 2.1, p); slide = sstep(1.4, 1.75, p);
+    if (p >= 1.75 && !tapeIn.done) { tapeIn.done = true; staticUntil = now + 420; if (sound) sound._noise(sound.ctx.currentTime + .01, .32, 'highpass', 1200, .5, .16, sound.out); seekBar(0); const ci = CHANNELS.indexOf(song.genre); if (ci >= 0) channel = ci; tvTape(); renderGuide(); setTimeout(tvTitle, 380); }
+    if (p > 2.85) tapeIn = null; }
+  const sway = [Math.sin(t * .4) * .012, breath * .006, 0], seat = [EYE[0] + sway[0], EYE[1] + sway[1], EYE[2]], lean = [.3, .98, 1.5];
+  let eye = mix3(seat, lean, up), yw = yaw * (1 - up), pitch = PITCH - up * .42;
+  if (camZoom > 0) { const asp = window.innerWidth / window.innerHeight, th = Math.max(.6, .36 / asp), dist = Math.max(TV3.hh / th, TV3.hw / (th * asp)) * .97; eye = mix3(eye, [TV3.x, TV3.y, TV3.z - dist], camZoom); yw *= 1 - camZoom; pitch *= 1 - camZoom; }
+  setCam(eye, yw, pitch);
+  // ---- page elements onto their surfaces (only when the view has changed)
+  const key = [eye[0].toFixed(3), eye[1].toFixed(3), eye[2].toFixed(3), yw.toFixed(4), pitch.toFixed(4), cam.vw, cam.vh].join();
+  if (key !== camKey) { camKey = key;
+    layOn(tvEl, TV_W, TV_H, [[TV3.x - TV3.hw, TV3.y + TV3.hh, TV3.z - .01], [TV3.x + TV3.hw, TV3.y + TV3.hh, TV3.z - .01], [TV3.x + TV3.hw, TV3.y - TV3.hh, TV3.z - .01], [TV3.x - TV3.hw, TV3.y - TV3.hh, TV3.z - .01]]);
+    layOn(rackEl, RACK_W, RACK_H, [[RACK3.x, RACK3.y0, RACK3.z0], [RACK3.x, RACK3.y0, RACK3.z1], [RACK3.x, RACK3.y1, RACK3.z1], [RACK3.x, RACK3.y1, RACK3.z0]]);
+    layOn(guideEl, GUIDE_W, GUIDE_H, [[GUIDE3.x, GUIDE3.y0, GUIDE3.z0], [GUIDE3.x, GUIDE3.y0, GUIDE3.z1], [GUIDE3.x, GUIDE3.y1, GUIDE3.z1], [GUIDE3.x, GUIDE3.y1, GUIDE3.z0]]);
+    hotspot($('#tvBtn'), corners8([TV3.x, 1.13, 2.9], [.6, .51, .3]), 4); hotspot($('#vcrBtn'), corners8([.3, .33, 2.47], [.27, .065, .1]), 8); hotspot($('#remoteBtn'), corners8([.14, .8, .54], [.06, .05, .13]), 10);
+    const sh = document.querySelectorAll('.shade'); hotspot(sh[0], corners8([-1.25, 1.55, 3.19], [.5, .62, .01])); hotspot(sh[1], corners8([-2.5, 1.55, 3.19], [.38, .62, .01]));
   }
-  // a tape just recorded flies from the recorder to the rack
-  { const p = (now - recAt) / 900; if (p >= 0 && p < 1) { const e = p * p * (3 - 2 * p), [tx, ty] = tapeXY(Math.max(0, tapes.findIndex(T => T.id === song.id))), x = 440 + (tx - 440) * e, y = 196 + (ty - 196) * e - Math.sin(p * Math.PI) * 70;
-      R.ox = 0; R.box(x, y, 34, 22, c('#17171b'), .35); R.box(x + 4, y + 4, 26, 10, c('#f3ead2')); R.box(x + 4, y + 4, 26, 3, acc); }
-    if (now - recAt < 1500) { const on = Math.floor((now - recAt) / 180) % 2 === 0; R.ox = 0; R.box(488, 198, 12, 5, c(on ? '#ff3a2a' : '#5a1410')); if (on) R.glow(494, 200, 16, c('#ff3a2a'), .7); } }
-  // night falls as one dark veil over the room; then the TV's light goes on top of it: a bloom round the set, a spill onto the stand and table, a cone towards the couch
-  R.ox = 0; if (N > .01) R.box(-40, -150, 980, 640, c('#050816'), 0, N * .8);
-  const tvA = (.14 + N * .07) * flick + thump * .07, tvC = [acc[0] * .6 + .35, acc[1] * .6 + .38, acc[2] * .6 + .45];      // the screen's colour, washed towards the blue-white of a tube
-  R.glow(452, 92, 230 + N * 40, tvC, tvA); R.glow(452, 92, 120, c('#ffffff'), tvA * .35); R.glow(452, 224, 150, tvC, tvA * .7); R.beam(452, 160, 330, 440, 70, 260, tvC, tvA * .32, .9);
-  // ---- us, in the same style as the band: legs up on the table, one socked foot keeping time, the remote in hand
-  R.figures(); R.ox = cam * 1.4;
-  const dk = k => { const f = 1 - N * .5; return [k[0] * f, k[1] * f, k[2] * (f + N * .08)]; }, jeans = dk(c('#2f5f9a')), cuff = dk(c('#254c7c')), skin = dk(c('#e0a078')), sock = dk(c('#b9bab4'));
-  const by = breath * 2.2, tap = live ? -Math.max(0, Math.sin(beat * Math.PI)) * 6 : Math.sin(t * .8) * 1.2, press = Math.max(0, 1 - (now - pressAt) / 200), hy0 = Math.sin(t * .9) * 2.2 + press * 3;
-  // left leg: a long thigh and shin running away from us to the ankle on the table, then the foot standing up in its sock, wider at the toes than at the heel
-  R.cap(40, 490, 176, 300 + by, 98, 58, jeans); R.cap(176, 300 + by, 214, 206 + by * .5, 57, 18, jeans); R.cap(203, 203 + by * .5, 226, 205 + by * .5, 5, 5, cuff, .3);
-  R.circ(216, 197 + by * .5, 13.5, sock); R.cap(215, 196 + by * .5, 206, 150 + tap, 13, 16.5, sock); R.cap(204, 186 + by * .5, 226, 188 + by * .5, 2.2, 2.2, dk(c('#9c9d98')), .3);
-  // right leg: the knee low on the right, clear of the arm
-  R.cap(740, 530, 568, 342 + by, 112, 70, jeans);
-  // putting a tape in: the hand lifts it to the recorder, pushes it into the slot and comes back; then snow and the song from the top
-  let carry = 0, slide = 0; if (tapeIn) { if (window.__couch.hold != null) tapeIn.t0 = now - window.__couch.hold * 1000;      // (tests can freeze the move at a moment)
-    const p = (now - tapeIn.t0) / 1000, ss = (lo, hi) => { const u = clamp((p - lo) / (hi - lo), 0, 1); return u * u * (3 - 2 * u); }; carry = ss(.45, 1.15) - ss(1.75, 2.3); slide = ss(1.15, 1.6);
-    if (p >= 1.6 && !tapeIn.done) { tapeIn.done = true; staticUntil = now + 420; if (sound) sound._noise(sound.ctx.currentTime + .01, .32, 'highpass', 1200, .5, .16, sound.out); seekBar(0); const ci = CHANNELS.indexOf(song.genre); if (ci >= 0) channel = ci; tvTape(); setTimeout(tvTitle, 380); }
-    if (p > 2.35) tapeIn = null; }
-  const hx = 24 + carry * 40, hy = hy0 - carry * 56;
-  R.cap(468 + hx, 490, 412 + hx, 296 + hy, 33, 19, skin); R.circ(390 + hx, 276 + hy, 21, skin);                                                           // the forearm comes up from our lap, between the legs
-  if (tapeIn) {                                                                                                                                          // the tape in the hand, then sliding into the slot
-    if (slide < 1) { const w = 50 * (1 - slide * .25), hgt = 30 * (1 - slide), x = 346 + hx + slide * 22, y = 240 + hy + slide * 4; R.box(x, y, w, hgt, c('#17171b'), .35); if (hgt > 12) { R.box(x + 5, y + 5, w - 10, hgt * .45, c('#f3ead2')); R.box(x + 5, y + 5, w - 10, 3, c(tapeIn.T.look.accent)); } }
-  } else {
-  R.put(369 + hx, 212 + hy, 369 + hx, 308 + hy, 23, 23, 1, .3, c('#26262b')); R.put(369 + hx, 216 + hy, 369 + hx, 304 + hy, 19, 19, 1, 0, c('#32323a'));         // the remote
-  R.box(353 + hx, 219 + hy, 8, 6, c(press > .1 ? '#ff5a3c' : '#c83a2a')); if (press > .1) R.glow(357 + hx, 222 + hy, 12, c('#ff5a3c'), press);
-  for (let r = 0; r < 5; r++) for (let k = 0; k < 3; k++) R.box(353 + hx + k * 11.5, 232 + r * 9 + hy, 8, 5, c('#6a6a74'));
+  if (!room3) return;
+  // The picture is redrawn every other frame while nothing moves (the look is choppy anyway), every frame while the head turns. If frames take
+  // too long on this device, the art pixels get bigger: fewer rays to trace.
+  const moving = yaw !== yawTo || camGo || tapeIn || now - recAt < 1100; roomTick++; if (!moving && roomTick % 2) return;
+  if (dt > 0) { slowN = dt > .034 ? slowN + 1 : Math.max(0, slowN - 2); if (slowN > 45 && roomPx < 6) { roomPx++; slowN = 0; sizeRoom(); } }
+  // ---- the room, as boxes and capsules
+  const R = room3, wood = c('#8a5c30'), woodD = c('#6e4424'), dark = c('#22140a'); R.begin();
+  // the wall with the TV: stand, recorder, the set and its aerial, windows, posters
+  R.box([.3, .3, 2.85], [.75, .3, .35], woodD, 8); R.box([.3, .61, 2.85], [.79, .015, .38], wood);
+  R.box([.3, .33, 2.47], [.27, .065, .1], c('#5a5c66')); R.box([.22, .345, 2.368], [.12, .02, .003], c('#0a0a0c'), 0, null, 0, 1);
+  { const rec = now - recAt < 1500 && Math.floor((now - recAt) / 180) % 2 === 0; R.box([.48, .345, 2.368], [.035, .014, .003], rec ? c('#ff3a2a') : c('#3cff7a'), 5, null, 0, 1); }
+  R.box([TV3.x, 1.13, 2.92], [.6, .51, .32], c('#2e3036'), 7); R.box([TV3.x, TV3.y, TV3.z - .003], [TV3.hw, TV3.hh, .004], c('#060608'), 4, null, 0, 1); R.box([.8, .69, 2.598], [.016, .016, .003], c('#c83a2a'), 5, null, 0, 1);
+  R.box([.3, 1.66, 2.92], [.09, .025, .09], c('#2a2a2e')); R.cap([.3, 1.68, 2.92], [-.02, 2.2, 2.98], .012, c('#9a9aa2')); R.cap([.3, 1.68, 2.92], [.62, 2.2, 2.98], .012, c('#9a9aa2'));
+  R.box([-1.25, 1.55, 3.19], [.5, .62, .012], c('#fff0c4'), 2, null, 0, 1); R.box([-2.5, 1.55, 3.19], [.38, .62, .012], c('#fff0c4'), 2, null, 0, 1); R.box([-1.25, .9, 3.16], [.56, .02, .04], woodD); R.box([-2.5, .9, 3.16], [.44, .02, .04], woodD);
+  for (const [x, y, hw, hh, a, b] of POSTERS) R.box([x, y, 3.19], [hw, hh, .008], c(a), 3, c(b), 0, 1);
+  // the ceiling lamp
+  R.cap([-.8, 2.6, 1.4], [-.8, 2.3, 1.4], .008, c('#2a2018'), 0, 1); R.box([-.8, 2.22, 1.4], [.17, .08, .17], mix3(c('#6a5030'), c('#ffe0a0'), 1 - N), 5, null, 0, 1);
+  // rug, coffee table and what has piled up on it
+  // (the table stands to the left, so the recorder under the TV is in plain view)
+  const TX = -.78; R.box([TX + .2, .006, 1.5], [1.25, .006, .8], c('#7a6848'), 9, null, 0, 1);
+  R.box([TX, .45, 1.5], [.8, .03, .38], wood); for (const sx of [-1, 1]) for (const sz of [-1, 1]) R.box([TX + sx * .72, .21, 1.5 + sz * .31], [.035, .21, .035], woodD);
+  R.box([TX - .5, .5, 1.62], [.16, .02, .1], c('#c8c0a8')); R.box([TX - .48, .535, 1.62], [.13, .015, .08], c('#a83a3a')); R.box([TX + .52, .51, 1.7], [.14, .03, .09], c('#33343a')); R.box([TX + .52, .555, 1.7], [.13, .015, .085], c('#e8e2d0'));
+  R.box([TX + .12, .5, 1.72], [.12, .02, .08], c('#2a2c34')); R.box([TX + .62, .5, 1.36], [.1, .02, .12], c('#3a5a8a')); R.box([TX - .3, .49, 1.3], [.1, .006, .13], c('#e0c040'));
+  for (const cx of [TX - .2, TX - .02]) { R.cap([cx, .52, 1.66], [cx, .6, 1.66], .034, c('#c8ccd2')); R.cap([cx, .55, 1.66], [cx, .57, 1.66], .036, c('#c83a2a')); }
+  // armchairs either side, a sideboard under the guide with a plant, the arms of our couch
+  // an armchair in the corner by the rack, the arms of our couch, and on the left wall a sideboard with a plant under the mirror
+  { const ax = 2.05, az = 2.6; R.box([ax, .22, az], [.42, .22, .4], c('#5e4428')); R.box([ax, .6, az + .42], [.42, .42, .1], c('#553c22')); R.box([ax - .4, .46, az], [.07, .1, .4], c('#4a341e')); R.box([ax + .4, .46, az], [.07, .1, .4], c('#4a341e')); }
+  for (const sd of [-1, 1]) R.box([sd * 1.0, .45, -.5], [.13, .45, .55], c('#4e3a26'));
+  { const mz = MIRROR3.z; R.box([-2.84, .26, mz - .12], [.24, .26, .5], woodD); R.box([-2.84, .53, mz - .12], [.26, .012, .52], wood); R.cap([-2.8, .55, mz - .5], [-2.8, .68, mz - .5], .08, c('#b5653a'));
+    for (let k = 0; k < 5; k++) { const an = k * 1.26 + Math.sin(t * .8 + k) * .05; R.cap([-2.8, .72, mz - .5], [-2.8 + Math.cos(an) * .16, .98 + (k % 2) * .1, mz - .5 + Math.sin(an) * .16], .026, c(k % 2 ? '#3a8a5a' : '#2e7048')); }
+    R.box([-3.085, MIRROR3.y, mz], [.014, MIRROR3.h + .06, MIRROR3.h + .06], c('#8a5a30'), 0, null, 0, 1); R.box([-3.068, MIRROR3.y, mz], [.004, MIRROR3.h, MIRROR3.h], c('#9ab0b8'), 11, null, 0, 1); }
+  // the channel guide: a framed board on the left wall (its text is laid on by the page)
+  R.box([-3.07, (GUIDE3.y0 + GUIDE3.y1) / 2, (GUIDE3.z0 + GUIDE3.z1) / 2], [.025, (GUIDE3.y0 - GUIDE3.y1) / 2 + .06, (GUIDE3.z1 - GUIDE3.z0) / 2 + .06], c('#1c2a22'), 10, null, 0, 1);
+  // the tape rack on the right wall, a plant on top
+  R.box([2.98, 1.05, 1.2], [.12, 1.03, 1.0], woodD); for (const y of [.02, .57, 1.12, 1.67, 2.06]) R.box([2.78, y, 1.2], [.2, .02, 1.0], wood); for (const z of [.2, 2.2]) R.box([2.78, 1.05, z], [.2, 1.03, .02], woodD);
+  R.cap([2.8, 2.1, 1.9], [2.8, 2.22, 1.9], .08, c('#b5653a')); for (let k = 0; k < 4; k++) { const an = k * 1.57 + .4; R.cap([2.8, 2.26, 1.9], [2.8 + Math.cos(an) * .16, 2.48, 1.9 + Math.sin(an) * .18], .025, c(k % 2 ? '#3a8a5a' : '#2e7048'), 0, 1); }
+  tapes.forEach((T, i) => { const p = tapePos(i), out = i === tapeSel ? .14 : 0; R.box([p[0] - out, p[1] + out * .2, p[2]], [.07, .15, .09], c('#17171b'), 1, c(T.look.accent)); });
+  // a tape just recorded flies from the recorder to its place in the rack
+  { const p = (now - recAt) / 1000; if (p >= 0 && p < 1) { const e = sstep(0, 1, p), to = tapePos(Math.max(0, tapes.findIndex(T => T.id === song.id))), at = mix3([VCR3[0], VCR3[1], VCR3[2] - .1], to, e); at[1] += Math.sin(p * Math.PI) * .6; R.box(at, [.09, .012, .055], c('#17171b'), 0, null, 0, 1); R.box([at[0], at[1] + .013, at[2]], [.06, .003, .03], c('#f3ead2'), 0, null, 0, 1); } }
+  // ---- us: legs up on the table with one foot keeping time, the remote in hand. (While we are up with a tape, only the arm.)
+  const jeans = c('#2f5f9a'), skin = c('#e0a078'), sock = c('#b9bab4'), tap = live ? Math.max(0, Math.sin(beat * Math.PI)) * .05 : Math.sin(t * .8) * .01, press = Math.max(0, 1 - (now - pressAt) / 200), by = breath * .004;
+  if (up < .04 && camZoom < .5) {
+    R.cap([-.2, .52 + by, -.2], [-.27, .62 + by, .72], .1, jeans, 1); R.cap([-.27, .62 + by, .72], [-.29, .57, 1.3], .075, jeans, 1); R.cap([-.29, .56, 1.31], [-.29, .57, 1.33], .08, c('#254c7c'), 1); R.cap([-.29, .57, 1.36], [-.3, .78 + tap, 1.43], .058, sock, 1);
+    R.cap([.2, .52 + by, -.2], [.46, .64 + by, .6], .1, jeans, 1); R.cap([.46, .64 + by, .6], [.52, .14, .92], .078, jeans, 1); R.cap([.52, .07, .95], [.52, .07, 1.1], .065, sock, 1);
   }
-  for (let i = 0; i < 4; i++) R.cap(352 + hx, 266 + i * 12.5 + hy, 343 + hx, 262 + i * 12.5 + hy, 7, 6.2, skin);                                        // fingers wrapped round its edge
-  R.cap(394 + hx, 264 + hy, 373 + hx, 243 + hy + press * 6, 9, 7.5, skin);                                                                               // the thumb, which presses
-  // the screen's light catching the foot, the hand and the knee
-  const rim = (.05 + N * .1) * flick + thump * .04; R.glow(214, 176, 60, acc, rim); R.glow(420, 262, 64, acc, rim); R.glow(556, 316, 84, acc, rim * .8);
-  R.ox = 0; R.render();
+  const hand0 = [.15, .78 + press * .004, .46], handUp = mix3([eye[0] + .1, eye[1] - .32, eye[2] + .42], [VCR3[0], VCR3[1] + .05, VCR3[2] - .2], reach), hand = mix3(hand0, handUp, sstep(.02, .5, up)), elbow = mix3([.36, .66, -.12], [eye[0] + .3, eye[1] - .45, eye[2] - .05], sstep(.02, .5, up));
+  if (camZoom < .5) {
+    R.cap(elbow, hand, .045, skin, 1); R.cap(hand, [hand[0], hand[1] + .001, hand[2] + .03], .058, skin, 1);
+    if (tapeIn) { if (slide < 1) { const z = hand[2] + .12 + slide * .1; R.box([hand[0], hand[1] + .02, z], [.09, .013, .055 * (1 - slide * .8)], c('#17171b'), 0, null, 1); R.box([hand[0], hand[1] + .034, z], [.06, .002, .03 * (1 - slide * .8)], c('#f3ead2'), 0, null, 1, 1); } }
+    else { R.box([hand[0] - .01, hand[1] + .03, hand[2] + .1], [.035, .014, .1], c('#26262b'), 6, c(press > .1 ? '#ff5a3c' : '#c83a2a'), 1); R.cap([hand[0] + .01, hand[1] + .05, hand[2] + .01], [hand[0] - .005, hand[1] + .052 - press * .008, hand[2] + .075], .017, skin, 1); }
+  }
+  // the TV's light: its colour washed towards the blue-white of a tube, flickering, thumping with the kick; stronger against the dark
+  const tvC = [acc[0] * .6 + .35, acc[1] * .6 + .38, acc[2] * .6 + .45], tvA = (.5 + N * 1.5) * flick + thump * .4, scr = project([TV3.x, TV3.y, TV3.z]) || [-999, -999], kx = roomCv.width / cam.vw;
+  R.render(cam, { tvCol: tvC, tvA, day: 1 - N, glow: (.1 + N * .12) * flick + thump * .06, tvScr: [scr[0] * kx, roomCv.height - scr[1] * kx] });
 }
 let roomPan = 0;
 requestAnimationFrame(function roomLoop(now) {
   requestAnimationFrame(roomLoop); if (mode !== 'editor') drawRoom(now);
-  // how far the TV has moved from straight ahead, in half screen widths: about three quarters to the left once we look at the rack
-  const vw = window.innerWidth, S = Math.max(vw / 640, window.innerHeight / ROOM_H), tvX = clamp(vw / 2 - 447 * S, vw - 640 * S, 0), want = mode === 'editor' ? 0 : clamp((sceneX - tvX) / (vw / 2), -1, 0) * .8;
+  // the band is heard from where the TV is: to the left when we look right at the rack, to the right when we look left at the guide
+  const want = mode === 'editor' ? 0 : clamp(-yaw / VIEWS.rack, -1, 1) * .8 * (1 - camZoom);
   if (sound && Math.abs(want - roomPan) > .01) { roomPan = want; sound.setRoom(want); }
 });
 /** Music-television graphics: the band and the song slide in at the bottom for a few seconds. */
@@ -3635,41 +3866,38 @@ function tvTitle() {
 }
 function tvTape() { const el = $('#tvCh'); el.textContent = 'VCR ▶'; el.classList.add('on'); clearTimeout(chTimer); chTimer = setTimeout(() => el.classList.remove('on'), 2600); }
 function tvChannel() { const el = $('#tvCh'); el.textContent = 'CH ' + String(channel + 1).padStart(2, '0'); el.classList.add('on'); clearTimeout(chTimer); chTimer = setTimeout(() => el.classList.remove('on'), 2600); }
-// the remote: next channel = another genre, with a new band and a new song; a burst of snow in between
-$('#remoteBtn').onclick = async () => {
-  if (mode !== 'couch') return;
-  if (tapeIn) return; dropTape(false);
-  channel = (channel + 1) % CHANNELS.length; staticUntil = pressAt = performance.now(); staticUntil += 420;
+/** Switch to a channel: another genre, with a new band and a new song; a burst of snow in between. */
+async function tune(i) {
+  if (mode !== 'couch' || tapeIn) return; dropTape(false);
+  channel = ((i % CHANNELS.length) + CHANNELS.length) % CHANNELS.length; staticUntil = performance.now() + 420;
   if (!playing) await start();
   if (sound) sound._noise(sound.ctx.currentTime + .01, .32, 'highpass', 1200, .5, .16, sound.out);
-  newSong(CHANNELS[channel]); tvChannel(); setTimeout(tvTitle, 380);
-};
+  newSong(CHANNELS[channel]); tvChannel(); renderGuide(); setTimeout(tvTitle, 380);
+}
+$('#remoteBtn').onclick = () => { pressAt = performance.now(); tune(channel + 1); };       // the remote: the next channel
 // the first tap anywhere turns the sound on (browsers don't let a page start playing by itself)
 couch.addEventListener('click', () => { if (!playing && mode === 'couch') start(); }, true);
 // The page asks for sound straight away. If the browser makes it wait, any first touch, click or key lets it through; until then the hint says so.
 const heard = () => { tvTitle(); const h = $('#couchHint'); h.textContent = h.textContent.replace(/^Tap anywhere to turn the sound on\. /, ''); h.classList.add('heard'); };
 for (const ev of ['pointerup', 'touchend', 'mousedown', 'keydown']) window.addEventListener(ev, () => { if (wantSound) start(); }, true);
 setTimeout(() => { start().then(heard); setTimeout(() => { if (!playing) { const h = $('#couchHint'); h.textContent = 'Tap anywhere to turn the sound on. ' + h.textContent; } }, 900); }, 0);
-const zoomTo = () => { const r = tvEl.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight, k = Math.max(vw / r.width, vh / r.height) * 1.04, cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-  zoomEl.style.transformOrigin = `${cx - sceneX}px ${cy - sceneY}px`; return `translate(${sceneX + vw / 2 - cx}px,${sceneY + vh / 2 - cy}px) scale(${k})`; };
 const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
-/** Fly into the TV: the screen grows until it fills the window, then the patch bay fades in behind it. */
+/** Fly into the TV: we move towards the screen until it fills the window, then the patch bay fades in behind it. */
 function enterTv() {
-  if (mode !== 'couch' || tapeIn) return; dropTape(false); mode = 'moving'; ui.opts.paused = false; ui.layout();
-  const to = zoomTo(); zoomEl.style.transition = calm ? 'none' : 'transform .95s cubic-bezier(.55,0,.85,.35)'; zoomEl.style.transform = to; couch.classList.add('fade');
-  setTimeout(() => { couch.classList.add('gone'); stageEl.insertBefore(stageCv, stageEl.firstChild); mode = 'editor'; roomCv.width = roomCv.height = 1; ui.layout(); $('#couchBtn').focus({ preventScroll: true }); }, calm ? 0 : 980);
+  if (mode !== 'couch' || tapeIn) return; dropTape(false); mode = 'moving'; couchView = 'tv'; navShow(); ui.opts.paused = false; ui.layout();
+  const swap = () => { couch.classList.add('gone'); stageEl.insertBefore(stageCv, stageEl.firstChild); mode = 'editor'; roomCv.width = roomCv.height = 1; ui.layout(); $('#couchBtn').focus({ preventScroll: true }); };
+  couch.classList.add('fade'); camGo = { t0: performance.now(), from: camZoom, to: 1, dur: calm ? 1 : 950, done: () => setTimeout(swap, calm ? 0 : 60) };
 }
 /** Back out of the TV onto the couch. */
 function exitTv() {
   if (mode !== 'editor') return; mode = 'moving'; if (fxCur) closeFx(); window.scrollTo(0, 0);
-  couch.classList.remove('gone'); tvPic.appendChild(stageCv); layoutCouch(); const base = `translate(${sceneX}px,${sceneY}px)`;
-  zoomEl.style.transition = 'none'; zoomEl.style.transform = base; const from = zoomTo(); zoomEl.style.transform = from; void zoomEl.offsetWidth; couch.classList.remove('fade');
-  zoomEl.style.transition = calm ? 'none' : 'transform .9s cubic-bezier(.15,.65,.45,1)'; zoomEl.style.transform = base;
-  setTimeout(() => { mode = 'couch'; ui.opts.paused = true; if (ui.glc) ui.glc.width = ui.glc.height = 1; tvTitle(); $('#tvBtn').focus({ preventScroll: true }); }, calm ? 0 : 920);
+  couch.classList.remove('gone'); tvPic.appendChild(stageCv); sizeRoom(); camZoom = 1; yaw = 0; drawRoom(performance.now()); void couch.offsetWidth; couch.classList.remove('fade');
+  camGo = { t0: performance.now(), from: 1, to: 0, dur: calm ? 1 : 900, done: () => { mode = 'couch'; ui.opts.paused = true; if (ui.glc) ui.glc.width = ui.glc.height = 1; tvTitle(); $('#tvBtn').focus({ preventScroll: true }); } };
 }
 $('#tvBtn').onclick = enterTv; $('#couchBtn').onclick = exitTv;
 tvPic.appendChild(stageCv); ui.opts.paused = true; requestAnimationFrame(() => { if (mode === 'couch' && ui.glc) ui.glc.width = ui.glc.height = 1; });       // off screen: give its memory back
-window.__couch = { enterTv, exitTv, tvView, mode: () => mode };
+window.__couch = { enterTv, exitTv, tvView, mode: () => mode, cam, project, view: () => couchView, setView };
+sizeRoom(); renderGuide(); navShow();
 
 /* ---------- debug statistics ---------- */
 const statsEl = $('#stats'), statsBtn = $('#statsBtn');
